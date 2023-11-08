@@ -31,7 +31,7 @@
 {% block scripts %}
 <script type="text/javascript">
     // wroclaw center 51.1104/17.0317
-    var map = L.map('map').setView([51.1104, 17.0317], 15);
+    var map = L.map('map').setView([51.1104, 17.0317], 12);
 
     L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
         maxZoom: 19,
@@ -50,11 +50,17 @@
         let msg = "Latitude: " + position.coords.latitude +
             "<br>Longitude: " + position.coords.longitude;
         var marker = L.marker([position.coords.latitude, position.coords.longitude]).addTo(map);
+        alert(msg);
         marker.bindPopup(msg);
     }
 
     $(document).ready(function (e) {
         getLocation();
+        const socket = new WebSocket(`ws://${window.location.host}/ws/base_app/`);
+        socket.onmessage = function (e) {
+            let data = JSON.parse(e.data);
+            console.log(data);
+        }
     });
 </script>
 {% endblock scripts %}

@@ -1,2 +1,4 @@
 __pycache__/
 .idea/
+dump.rdb
+celerybeat-schedule
