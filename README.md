@@ -43,7 +43,7 @@ Aplikacja webowa do przyjmowania oraz rozdysponowania zgłoszeń alarmowych (kon
 - [x] Pokazywanie aktualnej lokalizacji z przeglądarki
 - [ ] Zapisywanie aktualnej pozycji ratownika
 - [ ] Zapisywanie ostatniej aktualizacji lokalizacji (watchPositition) - brak możliwości przetestowania lokalnie
-- [ ] Logowanie, Rejestracja ratowników, dyspozytorów
+- [x] Logowanie, Rejestracja ratowników, dyspozytorów
 - [ ] Zapisywanie zgłoszeń
 - [ ] Pokazywanie zgłoszeń
 - [ ] Akceptowanie zgłoszeń
