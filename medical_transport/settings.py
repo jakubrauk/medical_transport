@@ -58,7 +58,7 @@ ROOT_URLCONF = 'medical_transport.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [],
+        'DIRS': [os.path.join(BASE_DIR, 'templates')],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -66,6 +66,7 @@ TEMPLATES = [
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
+                'utils.context_processors.user_groups_context',
             ],
         },
     },
@@ -75,6 +76,8 @@ WSGI_APPLICATION = 'medical_transport.wsgi.application'
 ASGI_APPLICATION = 'medical_transport.asgi.application'
 
 CELERY_BROKER_URL = 'redis://localhost:6379'
+
+LOGIN_REDIRECT_URL = '/'
 
 # Database
 # https://docs.djangoproject.com/en/4.2/ref/settings/#databases

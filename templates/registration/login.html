@@ -1,0 +1,30 @@
+{% if not next and user.is_authenticated %}
+    <p>Jesteś już zalogowany, przejdź do strony głównej</p>
+    <a href="{% url 'base_app:index' %}" class="btn btn-sm btn-primary">Strona główna</a>
+{% else %}
+    {% if next %}
+        {% if user.is_authenticated %}
+            <p>Twoje konto nie ma uprawnień do strony którą chcesz wyświetlić.</p>
+        {% else %}
+            <p>Zaloguj się, żeby zobaczyć tą stronę</p>
+        {% endif %}
+    {% endif %}
+    {% if form.errors %}
+        {{ form.errors }}
+    {% endif %}
+    <form method="POST" action="{% url 'login' %}">
+        {% csrf_token %}
+        <table>
+            <tr>
+                <td>{{ form.username.label_tag }}</td>
+                <td>{{ form.username }}</td>
+            </tr>
+            <tr>
+                <td>{{ form.password.label_tag }}</td>
+                <td>{{ form.password }}</td>
+            </tr>
+        </table>
+        <input type="submit" value="Zaloguj">
+        <input type="hidden" name="next" value="{{ next }}">
+    </form>
+{% endif %}
