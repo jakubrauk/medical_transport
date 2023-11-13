@@ -21,6 +21,13 @@ Aplikacja webowa do przyjmowania oraz rozdysponowania zgłoszeń alarmowych (kon
 - Generowanie trasy do zgłoszenia
 - Przechowywanie aktualnego położenia ratownika - GPS z przeglądarki
 
+### API do przyjmowania zgłoszeń
+- request method: POST
+- startPosition - [lat, lng] [float, flaot]
+- endPosition (optional) - [lat, lng] [float, flaot]
+- priority - int [1-3] 1-normal, 2-medium, 3-high
+- additionalInfo - Text
+
 
 ### 6.11.2023 TODO
 - [x] Responsywna mapa 
@@ -34,9 +41,20 @@ Aplikacja webowa do przyjmowania oraz rozdysponowania zgłoszeń alarmowych (kon
   - [ ] Osobne channels dla dyspozytorów i ratowników
   - [ ] W pełni działająca komunikacja serwer-front
 - [x] Pokazywanie aktualnej lokalizacji z przeglądarki
-- [ ] Logowanie, Rejestracja ratowników, dyspozytorów
 - [ ] Zapisywanie aktualnej pozycji ratownika
+- [ ] Zapisywanie ostatniej aktualizacji lokalizacji (watchPositition) - brak możliwości przetestowania lokalnie
+- [ ] Logowanie, Rejestracja ratowników, dyspozytorów
 - [ ] Zapisywanie zgłoszeń
 - [ ] Pokazywanie zgłoszeń
 - [ ] Akceptowanie zgłoszeń
 - [ ] Generowanie i pokazywanie trasy do zgłoszenia
+
+
+### Konkretny plan działania
+ - Rejestracja dyspozytorów, ratowników, logowanie, edycja profilu
+ - Przyjmowanie zgłoszeń API
+ - pokazywanie live ratowników na mapie
+ - Pokazywanie zgłoszeń live na mapie
+ - Pokazywanie zgłoszeń ratownikom w zasięgu, generowanie trasy
+ - Rozdysponowanie zgłoszeń między ratownikami, jeżeli nikt nie zaakceptował - wówczas wybór ratownika z listy lub z mapy
+
