@@ -11,27 +11,29 @@ def index(request):
 
 @login_required
 def create_dispositor(request):
+    form = None
     if request.method == 'GET':
         form = DispositorForm()
-        return render(request, 'base_app/create_dispositor.html', {'form': form})
 
     elif request.method == 'POST':
         form = DispositorForm(request.POST)
         if form.is_valid():
             form.save()
-
-    return redirect('base_app:index')
+        return redirect('base_app:index')
+    return render(request, 'base_app/create_dispositor.html', {'form': form})
 
 
 @login_required
 def create_paramedic(request):
+    form = None
     if request.method == 'GET':
         form = ParamedicForm()
-        return render(request, 'base_app/create_dispositor.html', {'form': form})
 
     elif request.method == 'POST':
         form = ParamedicForm(request.POST)
         if form.is_valid():
             form.save()
+        return redirect('base_app:index')
 
-    return redirect('base_app:index')
+    return render(request, 'base_app/create_paramedic.html', {'form': form})
+

@@ -30,12 +30,12 @@ class DispositorForm(UserCreationForm):
         )
 
     def add_user_to_group(self, user):
-        # add user to group
         user.groups.add(Group.objects.get_or_create(name=self.group_name)[0])
 
-    def save(self, *args, **kwargs):
+    def save(self, **kwargs):
         user = super().save()
         self.add_user_to_group(user)
+        return user
 
 
 class ParamedicForm(DispositorForm):
