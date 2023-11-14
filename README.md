@@ -43,7 +43,7 @@ Aplikacja webowa do przyjmowania oraz rozdysponowania zgłoszeń alarmowych (kon
 - [x] Pokazywanie aktualnej lokalizacji z przeglądarki
 - [ ] Zapisywanie aktualnej pozycji ratownika
 - [ ] Zapisywanie ostatniej aktualizacji lokalizacji (watchPositition) - brak możliwości przetestowania lokalnie
-- [ ] Logowanie, Rejestracja ratowników, dyspozytorów
+- [x] Logowanie, Rejestracja ratowników, dyspozytorów
 - [ ] Zapisywanie zgłoszeń
 - [ ] Pokazywanie zgłoszeń
 - [ ] Akceptowanie zgłoszeń
@@ -51,10 +51,42 @@ Aplikacja webowa do przyjmowania oraz rozdysponowania zgłoszeń alarmowych (kon
 
 
 ### Konkretny plan działania
- - Rejestracja dyspozytorów, ratowników, logowanie, edycja profilu
+ - Rejestracja dyspozytorów (DONE), ratowników (DONE), logowanie (DONE), edycja profilu
  - Przyjmowanie zgłoszeń API
  - pokazywanie live ratowników na mapie
  - Pokazywanie zgłoszeń live na mapie
  - Pokazywanie zgłoszeń ratownikom w zasięgu, generowanie trasy
  - Rozdysponowanie zgłoszeń między ratownikami, jeżeli nikt nie zaakceptował - wówczas wybór ratownika z listy lub z mapy
+ - Uprawnienia dyspozytora
+ - Update frontend
 
+
+### Hierarchia i uprawnienia użytkowników
+1. Admin (superuser):
+   - Tworzenie kont dyspozytorów
+   - Uprawnienia dyspozytora
+2. Dyspozytor (user group):
+   - Tworzenie kont dla ratowników (Początkowo przypisanych do dyspozytora który go tworzy, można później zmienić)
+   - Wyświetlanie wszystkich ratowników na mapie
+   - Wyświetlanie wszystkich zgłoszeń na mapie
+   - Przydzielanie zgłoszeń do ratownika
+3. Ratownik (user group)
+   - Pokazywanie ratowników w okolicy (jaka jest ta okolica to do uzgodnienia)
+   - Akceptowanie, odrzucanie zgłoszeń alarmowych w okolicy (izochrony)
+   - Wyznaczanie trasy do zgłoszenia
+   - Potwierdzenie przybycia do celu, kontynuowanie trasy do celu opcjonalnego
+   - Zakończenie zgłoszenia alarmowego
+   - ? Zapis raportu ze zgłoszenia ?
+
+
+### Interfejs dla użytkowników (co widzą na mapie)
+1. Admin (superuser):
+    - Widzi przyciski do tworzenia dyspozytorów
+    - Widzi wszystko to co dyspozytor
+2. Dyspozytor
+    - Widzi wszystkich ratowników na mapie live
+    - Widzi wszystkich dyspozytorów live na mapie
+    - Widzi wszystkie zgłoszenia na mapie oraz ich status
+3. Ratownik
+    - Widzi zgłoszenia w swojej okolicy
+    - Widzi innych ratowników w swojej okolicy

@@ -1,0 +1,9 @@
+{% extends 'base_app/new_base.html' %}
+{% block content %}
+    <form action="{% url 'base_app:create_dispositor' %}" method="POST">
+        {% csrf_token %}
+        {{ form.as_table }}
+        <br>
+        <button class="btn-sm btn-success" type="submit">Zapisz</button>
+    </form>
+{% endblock content %}
