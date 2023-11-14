@@ -78,3 +78,15 @@ Aplikacja webowa do przyjmowania oraz rozdysponowania zgłoszeń alarmowych (kon
    - Zakończenie zgłoszenia alarmowego
    - ? Zapis raportu ze zgłoszenia ?
 
+
+### Interfejs dla użytkowników (co widzą na mapie)
+1. Admin (superuser):
+    - Widzi przyciski do tworzenia dyspozytorów
+    - Widzi wszystko to co dyspozytor
+2. Dyspozytor
+    - Widzi wszystkich ratowników na mapie live
+    - Widzi wszystkich dyspozytorów live na mapie
+    - Widzi wszystkie zgłoszenia na mapie oraz ich status
+3. Ratownik
+    - Widzi zgłoszenia w swojej okolicy
+    - Widzi innych ratowników w swojej okolicy
