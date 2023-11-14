@@ -27,6 +27,30 @@ class EmergencyAlert(models.Model):
     date_accepted_rejected = models.DateTimeField(null=True, blank=True)
     date_finished = models.DateTimeField(null=True, blank=True)
 
+    @classmethod
+    def get_priority_from_number(cls, priority_number):
+        return {
+            1: cls.EmergencyPriority.NORMAL,
+            2: cls.EmergencyPriority.MEDIUM,
+            3: cls.EmergencyPriority.HIGH
+        }.get(priority_number)
+
+    @classmethod
+    def create_from_api(cls, data):
+        model_data = {
+            'priority': cls.get_priority_from_number(int(data.get('priority'))),
+            'start_position_latitude': data.get('startPositionLatitude'),
+            'start_position_longitude': data.get('startPositionLongitude'),
+            'additional_info': data.get('additionalInfo')
+        }
+        if 'endPositionLatitude' in data and 'endPositionLongitude' in data:
+            model_data['end_position_latitude'] = data.get('endPositionLatitude')
+            model_data['end_position_longitude'] = data.get('endPositionLongitude')
+
+        emergency = cls(**model_data)
+        emergency.save()
+        return emergency
+
     @staticmethod
     def coors_valid(coordinate):
         return True if re.match(r'^[-]?\d{1,2}(\.\d+)?$', coordinate) else False

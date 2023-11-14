@@ -56,6 +56,8 @@ def create_emergency_alert_api(request):
 
     if request.method == 'POST':
         if EmergencyAlert.api_data_valid(request.POST):
+            # save Emergency alert
+            emergency_alert = EmergencyAlert.create_from_api(request.POST)
             context = {
                 'valid': True,
                 'method': request.method
