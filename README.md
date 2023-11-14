@@ -52,7 +52,7 @@ Aplikacja webowa do przyjmowania oraz rozdysponowania zgłoszeń alarmowych (kon
 
 ### Konkretny plan działania
  - Rejestracja dyspozytorów (DONE), ratowników (DONE), logowanie (DONE), edycja profilu
- - Przyjmowanie zgłoszeń API
+ - Przyjmowanie zgłoszeń API - model(DONE), API(DONE), zapis modelu ()
  - pokazywanie live ratowników na mapie
  - Pokazywanie zgłoszeń live na mapie
  - Pokazywanie zgłoszeń ratownikom w zasięgu, generowanie trasy
