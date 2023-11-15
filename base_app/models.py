@@ -1,7 +1,49 @@
+import json
 import re
+from datetime import datetime
+
+from asgiref.sync import async_to_sync
+from channels.layers import get_channel_layer
 from django.db import models
-from django.contrib.auth.models import User
+from django.contrib.auth.models import User, Group
 from django.utils.translation import gettext_lazy as _
+
+
+class Paramedic(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    online = models.BooleanField(default=False)
+    last_latitude = models.CharField(max_length=254, null=True, blank=True)
+    last_longitude = models.CharField(max_length=254, null=True, blank=True)
+    last_lat_lng_update = models.DateTimeField(null=True, blank=True)
+
+    @classmethod
+    def get_by_user(cls, user):
+        group, created = Group.objects.get_or_create(name='paramedics')
+
+        if group in user.groups.all():
+            obj, created = cls.objects.get_or_create(user=user)
+            return obj
+        return None
+
+    def update_position(self, crd):
+        self.last_latitude = crd.get('latitude')
+        self.last_longitude = crd.get('longitude')
+        self.last_lat_lng_update = datetime.today()
+        self.save()
+
+
+class Dispositor(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    online = models.BooleanField(default=False)
+
+    @classmethod
+    def get_by_user(cls, user):
+        group, created = Group.objects.get_or_create(name='dispositors')
+
+        if group in user.groups.all():
+            obj, created = cls.objects.get_or_create(user=user)
+            return obj
+        return None
 
 
 class EmergencyAlert(models.Model):
@@ -49,7 +91,32 @@ class EmergencyAlert(models.Model):
 
         emergency = cls(**model_data)
         emergency.save()
+        # emergency.send_websocket()
+        emergency.broadcast()
         return emergency
+
+    # def send_websocket(self):
+    #     channel_layer = get_channel_layer()
+    #     msg = {
+    #         'type': 'EmergencyAlert.send_websocket',
+    #         'message': {
+    #             'emergency_alert_id': self.id,
+    #             'additional_info': self.additional_info
+    #         }
+    #     }
+    #     async_to_sync(channel_layer.group_send)('base_app', {'type': 'send.new.data', 'text': msg})
+
+    def broadcast(self):
+        channel_layer = get_channel_layer()
+        data = {
+            'id': self.id,
+            'latitude': self.start_position_latitude,
+            'longitude': self.start_position_longitude,
+            'additional_info': self.additional_info,
+            'status': self.status,
+            'priority': self.priority
+        }
+        async_to_sync(channel_layer.group_send)('base_app', {'type': 'broadcast.emergency.alert', 'data': data})
 
     @staticmethod
     def coors_valid(coordinate):

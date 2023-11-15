@@ -3,6 +3,8 @@ from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth.models import Group
 from django.utils.translation import gettext_lazy as _
 
+from base_app.models import Dispositor, Paramedic
+
 
 class DispositorForm(UserCreationForm):
     # superuser dispositor creation form
@@ -11,6 +13,7 @@ class DispositorForm(UserCreationForm):
         'password_mismatch': _('Wprowadzone hasła nie są takie same.')
     }
     group_name = 'dispositors'
+    DataClass = Dispositor
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -32,14 +35,20 @@ class DispositorForm(UserCreationForm):
     def add_user_to_group(self, user):
         user.groups.add(Group.objects.get_or_create(name=self.group_name)[0])
 
+    def create_user_data_instance(self, user):
+        data_instance = self.DataClass.get_by_user(user)
+        return data_instance
+
     def save(self, **kwargs):
         user = super().save()
         self.add_user_to_group(user)
+        self.create_user_data_instance(user)
         return user
 
 
 class ParamedicForm(DispositorForm):
     group_name = 'paramedics'
+    DataClass = Paramedic
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)

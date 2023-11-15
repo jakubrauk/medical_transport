@@ -12,6 +12,29 @@ w CLI:
 google-chrome --args --unsafely-treat-insecure-origin-as-secure="http://whatever.test"
 ```
 
+uruchomienie serwera:
+```bash
+python manage.py runserver
+```
+
+uruchomienie redis:
+```bash
+redis-server
+```
+
+uruchomienie celery beat:
+```bash
+celery -A medical_transport beat
+```
+
+uruchomienie celery worker:
+```bash
+celery -A medical_transport worker -B
+```
+
+
+
+
 ### Opis
 Aplikacja webowa do przyjmowania oraz rozdysponowania zgłoszeń alarmowych (konkretna lokalizacja na mapie, priorytet, opcjonalnie finalna destynacja). Na mapie widoczni są zalogowani ratownicy. Dyspozytor widzi wszystkie zgłoszenia oraz wszystkich ratowników. Jeżeli zgłoszenie zostanie przypisane do ratownika, wyznaczana zostaje trasa (openrouteservice).
 
@@ -41,11 +64,14 @@ Aplikacja webowa do przyjmowania oraz rozdysponowania zgłoszeń alarmowych (kon
   - [ ] Osobne channels dla dyspozytorów i ratowników, a moze nawet osobne dla kazdego uzytkownika?
   - [ ] W pełni działająca komunikacja serwer-front
 - [x] Pokazywanie aktualnej lokalizacji z przeglądarki
-- [ ] Zapisywanie aktualnej pozycji ratownika
-- [ ] Zapisywanie ostatniej aktualizacji lokalizacji (watchPositition) - brak możliwości przetestowania lokalnie
+- [x] Zapisywanie aktualnej pozycji ratownika
+- [x] Zapisywanie ostatniej aktualizacji lokalizacji (watchPositition) - brak możliwości przetestowania lokalnie
 - [x] Logowanie, Rejestracja ratowników, dyspozytorów
 - [x] Zapisywanie zgłoszeń
 - [ ] Pokazywanie zgłoszeń
+  - [x] Broadcast zgłoszenia
+  - [x] aktualizacja zgłoszenia na mapie (broadcast)
+  - [ ] Pokazywanie i aktualizowanie wszystkich zgłoszeń
 - [ ] Akceptowanie zgłoszeń
 - [ ] Generowanie i pokazywanie trasy do zgłoszenia
 
@@ -54,7 +80,7 @@ Aplikacja webowa do przyjmowania oraz rozdysponowania zgłoszeń alarmowych (kon
  - Rejestracja dyspozytorów (DONE), ratowników (DONE), logowanie (DONE), edycja profilu
  - Przyjmowanie zgłoszeń API - model(DONE), API(DONE), zapis modelu (DONE)
  - pokazywanie live ratowników na mapie
- - Pokazywanie zgłoszeń live na mapie
+ - Pokazywanie zgłoszeń live na mapie (DONE)
  - Pokazywanie zgłoszeń ratownikom w zasięgu, generowanie trasy
  - Rozdysponowanie zgłoszeń między ratownikami, jeżeli nikt nie zaakceptował - wówczas wybór ratownika z listy lub z mapy
  - Uprawnienia dyspozytora

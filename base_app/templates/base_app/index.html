@@ -31,4 +31,14 @@
 {% endblock content %}
 {% block scripts %}
     <script type="text/javascript" src="{% static 'js/maps_script.js' %}"></script>
+    <script type="text/javascript">
+        const js_lookup = {
+            'user_groups': {{ user_groups_names|safe }},
+            'user_id': {{ user.id|safe }}
+        }
+        console.log(js_lookup);
+
+        var main_app = new MainApp('map', js_lookup, 'send_button');
+
+    </script>
 {% endblock scripts %}
