@@ -2,17 +2,33 @@ from channels.generic.websocket import AsyncWebsocketConsumer, WebsocketConsumer
 from asgiref.sync import async_to_sync
 import json
 
-from base_app.models import Paramedic
+from base_app.models import Paramedic, EmergencyAlert, Dispositor
 
 
 class BaseAppConsumer(WebsocketConsumer):
 
     def connect(self):
         async_to_sync(self.channel_layer.group_add)('base_app', self.channel_name)
+        if user := self.scope['user']:
+            if paramedic := Paramedic.objects.filter(user=user).last():
+                paramedic.set_online(self.channel_name)
+            elif dispositor := Dispositor.objects.filter(user=user).last():
+                dispositor.set_online(self.channel_name)
+
         self.accept()
-        self.send(json.dumps({'message': 'hello', 'channel_name': self.channel_name}))
+        initial_data = {
+            'paramedics': Paramedic.get_initial_data(),
+            'emergency_alerts': EmergencyAlert.get_initial_data(),
+            'dispositors': Dispositor.get_initial_data(),
+            'channel_name': self.channel_name,
+        }
+        self.send(json.dumps({'type': 'load_initial_data', 'data': initial_data}))
 
     def disconnect(self, code):
+        if paramedic := Paramedic.objects.filter(channel_name=self.channel_name).last():
+            paramedic.set_offline()
+        elif dispositor := Dispositor.objects.filter(channel_name=self.channel_name).last():
+            dispositor.set_offline()
         async_to_sync(self.channel_layer.group_discard)('base_app', self.channel_name)
 
     def send_new_data(self, event):

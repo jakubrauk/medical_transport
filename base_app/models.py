@@ -15,6 +15,7 @@ class Paramedic(models.Model):
     last_latitude = models.CharField(max_length=254, null=True, blank=True)
     last_longitude = models.CharField(max_length=254, null=True, blank=True)
     last_lat_lng_update = models.DateTimeField(null=True, blank=True)
+    channel_name = models.CharField(max_length=254)
 
     @classmethod
     def get_by_user(cls, user):
@@ -25,26 +26,49 @@ class Paramedic(models.Model):
             return obj
         return None
 
+    def set_online(self, channel_name):
+        self.online = True
+        self.channel_name = channel_name
+        self.save()
+
+    def set_offline(self):
+        self.online = False
+        self.channel_name = ''
+        self.save()
+
     def update_position(self, crd):
+        self.online = True
         self.last_latitude = crd.get('latitude')
         self.last_longitude = crd.get('longitude')
         self.last_lat_lng_update = datetime.today()
         self.save()
         self.broadcast()
 
-    def broadcast(self):
-        channel_layer = get_channel_layer()
-        data = {
+    def get_dict(self):
+        return {
             'id': self.id,
+            'user_id': self.user_id,
+            'online': self.online,
             'latitude': self.last_latitude,
             'longitude': self.last_longitude,
+            'last_lat_lng_update': self.last_lat_lng_update.strftime('%Y-%m-% %H:%M')
         }
+
+    def broadcast(self):
+        channel_layer = get_channel_layer()
+        data = self.get_dict()
         async_to_sync(channel_layer.group_send)('base_app', {'type': 'broadcast.paramedic', 'data': data})
+
+    @classmethod
+    def get_initial_data(cls):
+        # get online paramedics
+        return [pm.get_dict() for pm in cls.objects.filter(online=True)]
 
 
 class Dispositor(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     online = models.BooleanField(default=False)
+    channel_name = models.CharField(max_length=254)
 
     @classmethod
     def get_by_user(cls, user):
@@ -54,6 +78,20 @@ class Dispositor(models.Model):
             obj, created = cls.objects.get_or_create(user=user)
             return obj
         return None
+
+    def set_online(self, channel_name):
+        self.online = True
+        self.channel_name = channel_name
+        self.save()
+
+    def set_offline(self):
+        self.online = False
+        self.channel_name = ''
+        self.save()
+
+    @classmethod
+    def get_initial_data(cls):
+        return []
 
 
 class EmergencyAlert(models.Model):
@@ -116,9 +154,8 @@ class EmergencyAlert(models.Model):
     #     }
     #     async_to_sync(channel_layer.group_send)('base_app', {'type': 'send.new.data', 'text': msg})
 
-    def broadcast(self):
-        channel_layer = get_channel_layer()
-        data = {
+    def get_dict(self):
+        return {
             'id': self.id,
             'latitude': self.start_position_latitude,
             'longitude': self.start_position_longitude,
@@ -126,7 +163,20 @@ class EmergencyAlert(models.Model):
             'status': self.status,
             'priority': self.priority
         }
+
+    def broadcast(self):
+        channel_layer = get_channel_layer()
+        data = self.get_dict()
         async_to_sync(channel_layer.group_send)('base_app', {'type': 'broadcast.emergency.alert', 'data': data})
+
+    @classmethod
+    def get_active(cls):
+        return cls.objects.filter(status__in=[cls.EmergencyStatus.PENDING, cls.EmergencyStatus.IN_PROCESS])
+
+    @classmethod
+    def get_initial_data(cls):
+        # return active emergency alerts (PENDING, IN_PROCESS)
+        return [ea.get_dict() for ea in cls.get_active()]
 
     @staticmethod
     def coors_valid(coordinate):

@@ -73,6 +73,7 @@ class MainApp {
 
         self.position = null;
         self.postion_marker = null;
+
         if (self.user_groups.includes('paramedics')) {
             self.navigator_id = navigator.geolocation.watchPosition(
                 function (pos) {
@@ -115,6 +116,19 @@ class MainApp {
         }).addTo(map);
 
         return map;
+    }
+
+    load_initial_data(data) {
+        const self = this;
+        for (let paramedic of data['paramedics']) {
+            self.update_paramedic(paramedic);
+        }
+        for (let dispositor of data['dispositors']) {
+            console.log('todo update dispositors');
+        }
+        for (let emergency_alert of data['emergency_alerts']) {
+            self.update_emergency_alert(emergency_alert);
+        }
     }
 
     watch_position_success(pos) {
@@ -171,6 +185,10 @@ class MainApp {
         const self = this;
         console.log('processing: ', _type, data);
         switch (_type) {
+            case 'load_initial_data':
+                console.log('processing load initial data');
+                self.load_initial_data(data);
+                break;
             case 'broadcast_emergency_alert':
                 console.log('processing broadcast emergency alert');
                 self.update_emergency_alert(data);
