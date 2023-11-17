@@ -10,7 +10,7 @@ class BaseAppConsumer(WebsocketConsumer):
     def connect(self):
         async_to_sync(self.channel_layer.group_add)('base_app', self.channel_name)
         self.accept()
-        # self.send(json.dumps({'message': 'hello', 'channel_name': self.channel_name}))
+        self.send(json.dumps({'message': 'hello', 'channel_name': self.channel_name}))
 
     def disconnect(self, code):
         async_to_sync(self.channel_layer.group_discard)('base_app', self.channel_name)
@@ -22,6 +22,9 @@ class BaseAppConsumer(WebsocketConsumer):
     def broadcast_emergency_alert(self, event):
         self.send(json.dumps({'type': 'broadcast_emergency_alert', 'data': event['data']}))
 
+    def broadcast_paramedic(self, event):
+        self.send(json.dumps({'type': 'paramedic_update', 'data': event['data']}))
+
     def receive(self, text_data=None, bytes_data=None):
         print('received message')
         data = json.loads(text_data)
@@ -31,7 +34,8 @@ class BaseAppConsumer(WebsocketConsumer):
 
     def process_received(self, _type, _data):
         {
-            'position_update': self.position_update
+            'position_update': self.position_update,
+            'test_button': self.test_button_receive
         }.get(_type)(_data)
 
     def position_update(self, _data):
@@ -39,3 +43,8 @@ class BaseAppConsumer(WebsocketConsumer):
         paramedic = Paramedic.get_by_user(self.scope['user'])
         if paramedic:
             paramedic.update_position(_data)
+
+    def test_button_receive(self, _data):
+        print('test button receive')
+        print(_data)
+

@@ -30,6 +30,16 @@ class Paramedic(models.Model):
         self.last_longitude = crd.get('longitude')
         self.last_lat_lng_update = datetime.today()
         self.save()
+        self.broadcast()
+
+    def broadcast(self):
+        channel_layer = get_channel_layer()
+        data = {
+            'id': self.id,
+            'latitude': self.last_latitude,
+            'longitude': self.last_longitude,
+        }
+        async_to_sync(channel_layer.group_send)('base_app', {'type': 'broadcast.paramedic', 'data': data})
 
 
 class Dispositor(models.Model):

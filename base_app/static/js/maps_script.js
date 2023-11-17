@@ -29,12 +29,42 @@ class EmergencyAlert {
     }
 }
 
+class Paramedic {
+    constructor(main_app, id, latitude, longitude) {
+        const self = this;
+
+        self.main_app = main_app;
+        self.id = id;
+        self.latitude = latitude;
+        self.longitude = longitude;
+        self.marker = L.marker([self.latitude, self.longitude]).addTo(self.main_app.map);
+    }
+
+    update_data(data) {
+        const self = this;
+        self.latitude = data.latitude;
+        self.longitude = data.longitude;
+        self.marker.setLatLng(new L.LatLng(self.latitude, self.longitude));
+    }
+}
+
 class MainApp {
     constructor(map_id, js_lookup, test_button_id) {
         const self = this;
 
         self.user_groups = js_lookup['user_groups'];
         self.user_id = js_lookup['user_id'];
+        self.test_button_id = test_button_id;
+
+        $('#' + test_button_id).click(function (e) {
+            console.log('test button clicked');
+            self.socket_send({
+                type: 'test_button',
+                data: {
+                    message: 'HELLO'
+                }
+            });
+        });
 
         self.map = self.initialize_map(map_id);
 
@@ -43,15 +73,16 @@ class MainApp {
 
         self.position = null;
         self.postion_marker = null;
-
-        self.navigator_id = navigator.geolocation.watchPosition(
-            function (pos) {
-                self.watch_position_success(pos);
-            },
-            function (err) {
-                self.watch_position_error(err);
-            }
-        );
+        if (self.user_groups.includes('paramedics')) {
+            self.navigator_id = navigator.geolocation.watchPosition(
+                function (pos) {
+                    self.watch_position_success(pos);
+                },
+                function (err) {
+                    self.watch_position_error(err);
+                }
+            );
+        }
 
         self.socket_connected = false;
         self.web_socket = new WebSocket(`ws://${window.location.host}/ws/base_app/`);
@@ -144,6 +175,10 @@ class MainApp {
                 console.log('processing broadcast emergency alert');
                 self.update_emergency_alert(data);
                 break;
+            case 'paramedic_update':
+                console.log('processing broadcast paramedic update');
+                self.update_paramedic(data);
+                break;
             default:
                 console.log('Process Type didnt match any available methods');
         }
@@ -152,12 +187,24 @@ class MainApp {
     update_emergency_alert(data) {
         const self = this;
 
-        let em_alert = self.emergency_alerts.find(obj => {return obj.id = data.id});
+        let em_alert = self.emergency_alerts.find(obj => {return obj.id === data.id});
         if (!em_alert) {
             em_alert = new EmergencyAlert(self, data.id, data.latitude, data.longitude, data.additional_info, data.status, data.priority);
             self.emergency_alerts.push(em_alert);
             return;
         }
         em_alert.update_data(data);
+    }
+
+    update_paramedic(data) {
+        const self = this;
+
+        let paramedic = self.paramedics.find(obj => {return obj.id === data.id});
+        if (!paramedic) {
+            paramedic = new Paramedic(self, data.id, data.latitude, data.longitude);
+            self.paramedics.push(paramedic);
+            return;
+        }
+        paramedic.update_data(data);
     }
 }
