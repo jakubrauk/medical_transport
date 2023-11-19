@@ -32,6 +32,10 @@
 {% block scripts %}
     <script type="text/javascript" src="{% static 'js/maps_script.js' %}"></script>
     <script type="text/javascript">
+        $('#people_button').click(function (e) {
+            $(this).toggleClass('active');
+        });
+
         const js_lookup = {
             'user_groups': {{ user_groups_names|safe }},
             'user_id': {{ user.id|safe }}

@@ -61,25 +61,28 @@ Aplikacja webowa do przyjmowania oraz rozdysponowania zgłoszeń alarmowych (kon
   - [ ] Zmienne motywy - bg-dark, bg-light
 - [ ] Django channels - komunikacja na żywo (back-front)
   - [x] Podstawowa komunikacja serwer-front
-  - [ ] Osobne channels dla dyspozytorów i ratowników, a moze nawet osobne dla kazdego uzytkownika?
   - [ ] W pełni działająca komunikacja serwer-front
+  - [ ] websocket automatyczne wznawianie połączenia
 - [x] Pokazywanie aktualnej lokalizacji z przeglądarki
 - [x] Zapisywanie aktualnej pozycji ratownika
 - [x] Zapisywanie ostatniej aktualizacji lokalizacji (watchPositition) - brak możliwości przetestowania lokalnie
 - [x] Logowanie, Rejestracja ratowników, dyspozytorów
 - [x] Zapisywanie zgłoszeń
-- [ ] Pokazywanie zgłoszeń
+- [x] Pokazywanie zgłoszeń
   - [x] Broadcast zgłoszenia
   - [x] aktualizacja zgłoszenia na mapie (broadcast)
   - [ ] Pokazywanie i aktualizowanie wszystkich zgłoszeń
 - [ ] Akceptowanie zgłoszeń
 - [ ] Generowanie i pokazywanie trasy do zgłoszenia
+- [ ] pokazywanie kto i od kiedy jest online
+- [ ] usuwanie nieaktywnych ratowników / zgloszen z mapy
+  - [ ] celery task do ustawiania offline, oraz dezaktywowania zgłoszeń
 
 
 ### Konkretny plan działania
  - Rejestracja dyspozytorów (DONE), ratowników (DONE), logowanie (DONE), edycja profilu
  - Przyjmowanie zgłoszeń API - model(DONE), API(DONE), zapis modelu (DONE)
- - pokazywanie live ratowników na mapie
+ - pokazywanie live ratowników na mapie (DONE)
  - Pokazywanie zgłoszeń live na mapie (DONE)
  - Pokazywanie zgłoszeń ratownikom w zasięgu, generowanie trasy
  - Rozdysponowanie zgłoszeń między ratownikami, jeżeli nikt nie zaakceptował - wówczas wybór ratownika z listy lub z mapy

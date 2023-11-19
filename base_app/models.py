@@ -30,6 +30,7 @@ class Paramedic(models.Model):
         self.online = True
         self.channel_name = channel_name
         self.save()
+        self.broadcast()
 
     def set_offline(self):
         self.online = False

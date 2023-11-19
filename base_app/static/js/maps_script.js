@@ -13,7 +13,13 @@ class EmergencyAlert {
         self.status = status;
         self.priority = priority;
 
+        self.accept_button = $('<button>').addClass('btn btn-success btn-sm').text('Przyjmij zgłoszenie');
+        self.popup_initialized = false;
+
         self.marker = L.marker([self.start_latitude, self.start_longitude]).addTo(self.main_app.map);
+        self.popup = self.marker.bindPopup(`<div id="popup_${self.id}" style="min-width: 80px;"></div>`).on('popupopen', function (e) {
+            self.set_popup_content();
+        });
     }
 
     update_data(data) {
@@ -26,6 +32,29 @@ class EmergencyAlert {
         self.additional_info = data.additional_info;
 
         self.marker.setLatLng(new L.LatLng(self.start_latitude, self.start_longitude));
+    }
+
+    set_popup_content() {
+        const self = this;
+
+        if (!self.popup_initialized) {
+            self.accept_button.click(function (e) {
+                self.popup.closePopup();
+                self.accept_button_action();
+            });
+        }
+
+        self.popup_initialized = true;
+
+        $(`#popup_${self.id}`)
+            .append($('<p>')
+                .append($('<b>').text(self.additional_info)))
+            .append(self.accept_button);
+    }
+
+    accept_button_action() {
+        const self = this;
+        console.log('accept button action');
     }
 }
 
