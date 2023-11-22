@@ -10,7 +10,7 @@ from django.utils.translation import gettext_lazy as _
 
 
 class Paramedic(models.Model):
-    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    user = models.OneToOneField(User, on_delete=models.CASCADE)  # django profile model
     online = models.BooleanField(default=False)
     last_latitude = models.CharField(max_length=254, null=True, blank=True)
     last_longitude = models.CharField(max_length=254, null=True, blank=True)
@@ -67,7 +67,7 @@ class Paramedic(models.Model):
 
 
 class Dispositor(models.Model):
-    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    user = models.OneToOneField(User, on_delete=models.CASCADE)  # django profile model
     online = models.BooleanField(default=False)
     channel_name = models.CharField(max_length=254)
 

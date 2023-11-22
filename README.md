@@ -77,7 +77,7 @@ Aplikacja webowa do przyjmowania oraz rozdysponowania zgłoszeń alarmowych (kon
 - [ ] pokazywanie kto i od kiedy jest online
 - [ ] usuwanie nieaktywnych ratowników / zgloszen z mapy
   - [ ] celery task do ustawiania offline, oraz dezaktywowania zgłoszeń
-- [ ] Zmiana User z ForeignKey na onetoonefield
+- [x] Zmiana User z ForeignKey na onetoonefield
 
 
 ### Konkretny plan działania
