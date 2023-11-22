@@ -1,9 +1,26 @@
 from django import forms
-from django.contrib.auth.forms import UserCreationForm
+from django.contrib.auth.forms import UserCreationForm, AuthenticationForm
 from django.contrib.auth.models import Group
 from django.utils.translation import gettext_lazy as _
 
 from base_app.models import Dispositor, Paramedic
+
+
+class CustomAuthenticationForm(AuthenticationForm):
+    error_messages = {
+        "invalid_login": _(
+            "Proszę wprowadzić poprawną nazwę użytkownika oraz hasło. Zauważ, że oba pola zwracają uwagę"
+            " na wielkość liter. "
+        ),
+        "inactive": _("To konto jest nieaktywne"),
+    }
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        self.fields['password'].label = 'Hasło'
+        self.fields['username'].label = 'Nazwa użytkownika'
+    pass
 
 
 class DispositorForm(UserCreationForm):

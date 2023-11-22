@@ -1,9 +1,21 @@
 {% extends 'base_app/new_base.html' %}
+{% load crispy_forms_tags %}
 {% block content %}
-    <form action="{% url 'base_app:create_paramedic' %}" method="POST">
-        {% csrf_token %}
-        {{ form.as_table }}
-        <br>
-        <button class="btn-sm btn-success" type="submit">Zapisz</button>
-    </form>
+    <div class="container">
+        <div class="col">
+            <div class="card mt-3">
+                <div class="card-header">
+                    Utwórz nowe konto dyspozytora
+                </div>
+                <div class="card-body">
+                    <form action="{% url 'base_app:create_paramedic' %}" method="POST">
+                        {% csrf_token %}
+                        {{ form|crispy }}
+                        <br>
+                        <button class="btn btn-success" type="submit">Zapisz</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
 {% endblock content %}

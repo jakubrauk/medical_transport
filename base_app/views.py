@@ -1,11 +1,16 @@
 import json
 from django.contrib.auth.decorators import login_required
+from django.contrib.auth.views import LoginView
 from django.http import JsonResponse
 from django.shortcuts import render, redirect
 from django.views.decorators.csrf import csrf_exempt
 
-from base_app.forms import DispositorForm, ParamedicForm
+from base_app.forms import DispositorForm, ParamedicForm, CustomAuthenticationForm
 from base_app.models import EmergencyAlert
+
+
+class CustomLoginView(LoginView):
+    authentication_form = CustomAuthenticationForm
 
 
 @login_required
