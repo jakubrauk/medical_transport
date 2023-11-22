@@ -71,7 +71,7 @@ Aplikacja webowa do przyjmowania oraz rozdysponowania zgłoszeń alarmowych (kon
 - [x] Pokazywanie zgłoszeń
   - [x] Broadcast zgłoszenia
   - [x] aktualizacja zgłoszenia na mapie (broadcast)
-  - [ ] Pokazywanie i aktualizowanie wszystkich zgłoszeń
+  - [x] Pokazywanie i aktualizowanie wszystkich zgłoszeń
 - [ ] Akceptowanie zgłoszeń
 - [ ] Generowanie i pokazywanie trasy do zgłoszenia
 - [ ] pokazywanie kto i od kiedy jest online
