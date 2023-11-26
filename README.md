@@ -69,10 +69,10 @@ Aplikacja webowa do przyjmowania oraz rozdysponowania zgłoszeń alarmowych (kon
   - [ ] Responsywny, zwijany do góry?
   - [ ] Sidebar rozwijany
   - [ ] Zmienne motywy - bg-dark, bg-light
-- [ ] Django channels - komunikacja na żywo (back-front)
+- [x] Django channels - komunikacja na żywo (back-front)
   - [x] Podstawowa komunikacja serwer-front
-  - [ ] W pełni działająca komunikacja serwer-front
-  - [ ] websocket automatyczne wznawianie połączenia
+  - [x] W pełni działająca komunikacja serwer-front
+  - [x] websocket automatyczne wznawianie połączenia
 - [x] Pokazywanie aktualnej lokalizacji z przeglądarki
 - [x] Zapisywanie aktualnej pozycji ratownika
 - [x] Zapisywanie ostatniej aktualizacji lokalizacji (watchPositition) - brak możliwości przetestowania lokalnie

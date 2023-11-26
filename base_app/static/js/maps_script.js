@@ -180,6 +180,13 @@ class MainApp {
         }
 
         self.socket_connected = false;
+        self.websocket = null;
+        self.initialize_connection();
+    }
+
+    initialize_connection() {
+        const self = this;
+
         self.web_socket = new WebSocket(`ws://${window.location.host}/ws/base_app/`);
         self.web_socket.onopen = function (e) {
             self.socket_connected = true;
@@ -197,7 +204,10 @@ class MainApp {
         self.web_socket.onclose = function (e) {
             console.error('Web socket closed unexpectedly');
             self.socket_connected = false;
-            // TODO retry connection
+            setTimeout(function () {
+                console.log('retrying connection');
+                self.initialize_connection();
+            }, 1000);
         }
     }
 
