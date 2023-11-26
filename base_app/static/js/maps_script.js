@@ -39,31 +39,40 @@ class EmergencyAlert {
 
         if (!self.popup_initialized) {
             self.accept_button.click(function (e) {
-                self.popup.closePopup();
                 self.accept_button_action();
+                self.popup.closePopup();
             });
         }
 
+        let popup = $(`#popup_${self.id}`);
+
         self.popup_initialized = true;
 
-        $(`#popup_${self.id}`)
-            .append($('<p>')
-                .append($('<b>').text(self.additional_info)))
-            .append(self.accept_button);
+         popup
+             .append($('<p>')
+                 .append($('<b>').text(self.additional_info)));
+
+        if (self.main_app.user_paramedic) {
+                popup.append(self.accept_button);
+        } else {
+            popup.append($('<p>').text("Nie jesteś ratownikiem chujku, nie mozesz tego przyjac"));
+        }
     }
 
     accept_button_action() {
         const self = this;
         console.log('accept button action');
+        self.main_app.emergency_alert_accept_button(self);
     }
 }
 
 class Paramedic {
-    constructor(main_app, id, latitude, longitude) {
+    constructor(main_app, id, user_id, latitude, longitude) {
         const self = this;
 
         self.main_app = main_app;
         self.id = id;
+        self.user_id = user_id;
         self.latitude = latitude;
         self.longitude = longitude;
         self.marker = L.marker([self.latitude, self.longitude]).addTo(self.main_app.map);
@@ -83,6 +92,8 @@ class MainApp {
 
         self.user_groups = js_lookup['user_groups'];
         self.user_id = js_lookup['user_id'];
+        self.user_paramedic = null;  // User using app instance - paramedic
+        self.directions = null;
         self.test_button_id = test_button_id;
 
         $('#' + test_button_id).click(function (e) {
@@ -196,6 +207,21 @@ class MainApp {
         });
     }
 
+    emergency_alert_accept_button(emergency_alert) {
+        const self = this;
+        if (self.user_paramedic) {
+            self.socket_send({
+                type: 'emergency_alert_accept',
+                data: {
+                    paramedic_id: self.user_paramedic.id,
+                    emergency_alert_id: emergency_alert.id,
+                }
+            });
+        } else {
+            alert("USER ACCEPTING IS NOT A PARAMEDIC!");
+        }
+    }
+
     socket_send(data) {
         const self = this;
 
@@ -226,6 +252,9 @@ class MainApp {
                 console.log('processing broadcast paramedic update');
                 self.update_paramedic(data);
                 break;
+            case 'emergency_alert_directions':
+                self.show_directions(data);
+                break;
             default:
                 console.log('Process Type didnt match any available methods');
         }
@@ -247,11 +276,21 @@ class MainApp {
         const self = this;
 
         let paramedic = self.paramedics.find(obj => {return obj.id === data.id});
+        if (self.user_groups)
         if (!paramedic) {
-            paramedic = new Paramedic(self, data.id, data.latitude, data.longitude);
+            paramedic = new Paramedic(self, data.id, data.user_id, data.latitude, data.longitude);
             self.paramedics.push(paramedic);
             return;
         }
+        if (!self.user_paramedic && self.user_id === paramedic.user_id) {
+            self.user_paramedic = paramedic;
+        }
         paramedic.update_data(data);
+    }
+
+    show_directions(coordinates) {
+        const self = this;
+
+        self.directions = L.polyline(coordinates, {color: 'red'}).addTo(self.map);
     }
 }

@@ -8,6 +8,9 @@ from django.db import models
 from django.contrib.auth.models import User, Group
 from django.utils.translation import gettext_lazy as _
 
+from base_app.ors_client import get_decoded_directions, get_reversed_polyline_directions, get_directions, \
+    decode_geometry
+
 
 class Paramedic(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)  # django profile model
@@ -114,9 +117,10 @@ class EmergencyAlert(models.Model):
     end_position_latitude = models.CharField(max_length=254, null=True, blank=True)
     end_position_longitude = models.CharField(max_length=254, null=True, blank=True)
     additional_info = models.TextField()
-    paramedic = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True)
+    paramedic = models.ForeignKey(Paramedic, on_delete=models.SET_NULL, null=True, blank=True)
     date_accepted_rejected = models.DateTimeField(null=True, blank=True)
     date_finished = models.DateTimeField(null=True, blank=True)
+    route_geometry = models.TextField(null=True, blank=True)
 
     @classmethod
     def get_priority_from_number(cls, priority_number):
@@ -143,6 +147,20 @@ class EmergencyAlert(models.Model):
         # emergency.send_websocket()
         emergency.broadcast()
         return emergency
+
+    def accept(self, paramedic):
+        self.paramedic = paramedic
+        self.status = self.EmergencyStatus.IN_PROCESS
+        self.save()
+        self.broadcast()
+
+    def get_directions(self):
+        if self.paramedic:
+            if not self.route_geometry:
+                self.route_geometry = get_directions((self.paramedic.last_longitude, self.paramedic.last_latitude),
+                                          (self.start_position_longitude, self.start_position_latitude))['routes'][0]['geometry']
+                self.save()
+            return get_reversed_polyline_directions(decode_geometry(self.route_geometry)['coordinates'])
 
     # def send_websocket(self):
     #     channel_layer = get_channel_layer()
