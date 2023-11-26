@@ -4,6 +4,8 @@
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
           integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY="
           crossorigin=""/>
+    <link rel="stylesheet" href="{% static 'awesome_markers/leaflet.awesome-markers.css' %}">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.2/font/bootstrap-icons.min.css">
 {% endblock head_before %}
 {% block head %}
     <style>
@@ -14,6 +16,11 @@
             width: 100%;
             height: 100%;
         }
+
+        .awesome-marker i {
+            font-size: 22px;
+            margin-top: 6px;
+        }
     </style>
 {% endblock head %}
 {% block head_after %}
@@ -21,6 +28,7 @@
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
             integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo="
             crossorigin=""></script>
+    <script src="{% static 'awesome_markers/leaflet.awesome-markers.js' %}"></script>
 {% endblock head_after %}
 {% block content %}
     <div class="card h-100" style="padding: 0;">

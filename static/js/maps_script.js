@@ -16,7 +16,12 @@ class EmergencyAlert {
         self.accept_button = $('<button>').addClass('btn btn-success btn-sm').text('Przyjmij zgłoszenie');
         self.popup_initialized = false;
 
-        self.marker = L.marker([self.start_latitude, self.start_longitude], {icon: self.get_marker_icon()}).addTo(self.main_app.map);
+        let redMarker = L.AwesomeMarkers.icon({
+            icon: 'coffee',
+            markerColor: 'red'
+        });
+
+        self.marker = L.marker([self.start_latitude, self.start_longitude], {icon: redMarker}).addTo(self.main_app.map);
         self.popup = self.marker.bindPopup(`<div id="popup_${self.id}" style="min-width: 80px;"></div>`).on('popupopen', function (e) {
             self.set_popup_content();
         });
@@ -32,16 +37,6 @@ class EmergencyAlert {
         self.additional_info = data.additional_info;
 
         self.marker.setLatLng(new L.LatLng(self.start_latitude, self.start_longitude));
-        self.marker.setIcon(self.get_marker_icon());
-    }
-
-    get_marker_icon() {
-        const self = this;
-        return L.AwesomeMarkers.icon({
-            icon: 'heart-pulse',
-            markerColor: ((self.status === 'Pending') ? 'red' : 'green'),
-            prefix: 'bi'
-        });
     }
 
     set_popup_content() {
@@ -77,7 +72,7 @@ class EmergencyAlert {
 }
 
 class Paramedic {
-    constructor(main_app, id, user_id, latitude, longitude, status) {
+    constructor(main_app, id, user_id, latitude, longitude) {
         const self = this;
 
         self.main_app = main_app;
@@ -85,31 +80,14 @@ class Paramedic {
         self.user_id = user_id;
         self.latitude = latitude;
         self.longitude = longitude;
-        self.status = status;
-
-        let blueMarker =
-
-        self.marker = L.marker([self.latitude, self.longitude], {icon: self.get_marker_icon()}).addTo(self.main_app.map);
+        self.marker = L.marker([self.latitude, self.longitude]).addTo(self.main_app.map);
     }
 
     update_data(data) {
         const self = this;
         self.latitude = data.latitude;
         self.longitude = data.longitude;
-        self.status = data.status;
-
         self.marker.setLatLng(new L.LatLng(self.latitude, self.longitude));
-        self.marker.setIcon(self.get_marker_icon());
-    }
-
-    get_marker_icon() {
-        const self = this;
-
-        return L.AwesomeMarkers.icon({
-            icon: ((self.status === 'IN_PROCESS') ? 'person-walking' : 'person-raised-hand'),
-            markerColor: ((self.status === 'IN_PROCESS') ? 'red' : 'blue'),
-            prefix: 'bi'
-        });
     }
 }
 
@@ -305,7 +283,7 @@ class MainApp {
         let paramedic = self.paramedics.find(obj => {return obj.id === data.id});
         if (self.user_groups)
         if (!paramedic) {
-            paramedic = new Paramedic(self, data.id, data.user_id, data.latitude, data.longitude, data.status);
+            paramedic = new Paramedic(self, data.id, data.user_id, data.latitude, data.longitude);
             self.paramedics.push(paramedic);
             return;
         }

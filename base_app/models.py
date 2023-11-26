@@ -48,6 +48,12 @@ class Paramedic(models.Model):
         self.save()
         self.broadcast()
 
+    def get_status(self):
+        # IN_PROCESS when EmergencyAlert with status == IN_PROCESS and paramedic == self exists
+        if EmergencyAlert.objects.filter(paramedic=self, status=EmergencyAlert.EmergencyStatus.IN_PROCESS).exists():
+            return 'IN_PROCESS'
+        return 'FREE'
+
     def get_dict(self):
         return {
             'id': self.id,
@@ -55,7 +61,8 @@ class Paramedic(models.Model):
             'online': self.online,
             'latitude': self.last_latitude,
             'longitude': self.last_longitude,
-            'last_lat_lng_update': self.last_lat_lng_update.strftime('%Y-%m-% %H:%M')
+            'last_lat_lng_update': self.last_lat_lng_update.strftime('%Y-%m-% %H:%M'),
+            'status': self.get_status(),
         }
 
     def broadcast(self):
@@ -153,6 +160,13 @@ class EmergencyAlert(models.Model):
         self.status = self.EmergencyStatus.IN_PROCESS
         self.save()
         self.broadcast()
+        self.paramedic.broadcast()
+
+    def finish(self):
+        self.status = self.EmergencyStatus.DONE
+        self.save()
+        self.broadcast()
+        self.paramedic.broadcast()
 
     def get_directions(self):
         if self.paramedic:

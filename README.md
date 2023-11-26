@@ -3,6 +3,9 @@
 ## Allow non-SSL geolocation
 https://stackoverflow.com/questions/39366758/geolocation-without-ssl-connection
 
+## Leaflet awesome-markers
+https://github.com/lennardv2/Leaflet.awesome-markers
+
 w przeglądarce:
 ```
 chrome://flags/#unsafely-treat-insecure-origin-as-secure
@@ -33,6 +36,13 @@ celery -A medical_transport worker -B
 ```
 
 
+### Kolory markerów EmergencyAlert
+- PENDING == red
+- IN_PROCESS == green
+
+### Kolory markerów Paramedic
+- IN_PROCESS == red
+- FREE == blue
 
 
 ### Opis
@@ -72,8 +82,8 @@ Aplikacja webowa do przyjmowania oraz rozdysponowania zgłoszeń alarmowych (kon
   - [x] Broadcast zgłoszenia
   - [x] aktualizacja zgłoszenia na mapie (broadcast)
   - [x] Pokazywanie i aktualizowanie wszystkich zgłoszeń
-- [ ] Akceptowanie zgłoszeń
-- [ ] Generowanie i pokazywanie trasy do zgłoszenia
+- [x] Akceptowanie zgłoszeń
+- [x] Generowanie i pokazywanie trasy do zgłoszenia
 - [ ] pokazywanie kto i od kiedy jest online
 - [ ] usuwanie nieaktywnych ratowników / zgloszen z mapy
   - [ ] celery task do ustawiania offline, oraz dezaktywowania zgłoszeń
