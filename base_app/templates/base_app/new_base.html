@@ -22,34 +22,12 @@
 {% block body %}
     <main>
         <div class="d-flex flex-column flex-shrink-0 bg-light" style="width: 4.5rem; height: 100%;">
-            {#        <a href="/" class="d-block p-3 link-dark text-decoration-none" title="" data-bs-toggle="tooltip"#}
-            {#           data-bs-placement="right" data-bs-original-title="Icon-only">#}
-            {#            <img src="{% static 'bootstrap-icons-1.11.0/bootstrap.svg' %}" width="40" height="32" alt="">#}
-            {#        </a>#}
             <ul class="nav nav-pills nav-flush flex-column mb-auto text-center">
                 <li class="nav-item">
                     <a href="/" class="nav-link {% if request.path == '/' %}active {% endif %}py-3 border-bottom"
                        aria-current="page" title=""
                        data-bs-toggle="tooltip" data-bs-placement="right" data-bs-original-title="Home">
                         <img src="{% static 'bootstrap-icons-1.11.0/house.svg' %}" width="40" height="32" alt="">
-                    </a>
-                </li>
-                <li>
-                    <a href="#" class="nav-link py-3 border-bottom" title="" data-bs-toggle="tooltip"
-                       data-bs-placement="right" data-bs-original-title="Dashboard">
-                        <img src="{% static 'bootstrap-icons-1.11.0/speedometer2.svg' %}" width="40" height="32" alt="">
-                    </a>
-                </li>
-                <li>
-                    <a href="#" class="nav-link py-3 border-bottom" title="" data-bs-toggle="tooltip"
-                       data-bs-placement="right" data-bs-original-title="Orders">
-                        <img src="{% static 'bootstrap-icons-1.11.0/table.svg' %}" width="40" height="32" alt="">
-                    </a>
-                </li>
-                <li>
-                    <a href="#" class="nav-link py-3 border-bottom" title="" data-bs-toggle="tooltip"
-                       data-bs-placement="right" data-bs-original-title="Products">
-                        <img src="{% static 'bootstrap-icons-1.11.0/grid.svg' %}" width="40" height="32" alt="">
                     </a>
                 </li>
                 <li>
