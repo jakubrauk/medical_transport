@@ -1,6 +1,7 @@
 import openrouteservice
 from openrouteservice import convert
 from openrouteservice.directions import directions
+from openrouteservice.isochrones import isochrones
 import os
 
 
@@ -22,3 +23,8 @@ def decode_geometry(geometry):
 
 def get_reversed_polyline_directions(coords):
     return [list(reversed(point)) for point in coords]
+
+
+def get_isochrones(coords, _range=60):
+    return isochrones(client, coords, range=[_range])
+

@@ -62,7 +62,7 @@ Aplikacja webowa do przyjmowania oraz rozdysponowania zgłoszeń alarmowych (kon
 - additionalInfo - Text
 
 
-### 6.11.2023 TODO
+### TODO
 - [x] Responsywna mapa 
 - [ ] Sidebar
   - [x] Podstawowy sidebar
@@ -87,6 +87,9 @@ Aplikacja webowa do przyjmowania oraz rozdysponowania zgłoszeń alarmowych (kon
 - [x] Ratownik nie moze przyjac kolejnego zgloszenia jezeli jest zajety
 - [x] Zduplikowana lokalizacja ratownika (rozroznienie siebie od innych ratownikow)
 - [x] Generowanie i pokazywanie trasy do zgłoszenia
+- [x] Pokazywanie isochrony
+- [ ] Dyspozytor moze bezposrednio dodawac zgloszenia po kliknieciu na mapie
+- [ ] Dyspozytor moze zobaczyc jakie zgloszenie obsluguje ratownik
 - [ ] Dyspozytor moze zobaczyc trase od ratownika do zgloszenia
 - [ ] pokazywanie kto i od kiedy jest online
 - [ ] usuwanie nieaktywnych ratowników / zgloszen z mapy

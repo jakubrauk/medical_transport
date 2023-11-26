@@ -9,7 +9,7 @@ from django.contrib.auth.models import User, Group
 from django.utils.translation import gettext_lazy as _
 
 from base_app.ors_client import get_decoded_directions, get_reversed_polyline_directions, get_directions, \
-    decode_geometry
+    decode_geometry, get_isochrones
 
 
 class Paramedic(models.Model):
@@ -62,6 +62,7 @@ class Paramedic(models.Model):
             'latitude': self.last_latitude,
             'longitude': self.last_longitude,
             'last_lat_lng_update': self.last_lat_lng_update.strftime('%Y-%m-% %H:%M'),
+            'isochrones': self.get_isochrones_reversed(),
             'status': self.get_status(),
         }
 
@@ -74,6 +75,12 @@ class Paramedic(models.Model):
     def get_initial_data(cls):
         # get online paramedics
         return [pm.get_dict() for pm in cls.objects.filter(online=True)]
+
+    def get_isochrones(self, _range=60):
+        return get_isochrones([(self.last_longitude, self.last_latitude)], _range=_range)['features'][0]['geometry']['coordinates'][0]
+
+    def get_isochrones_reversed(self, _range=120):
+        return [list(reversed(point)) for point in self.get_isochrones(_range=_range)]
 
 
 class Dispositor(models.Model):

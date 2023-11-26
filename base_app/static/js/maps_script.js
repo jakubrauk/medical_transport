@@ -104,7 +104,7 @@ class EmergencyAlert {
 }
 
 class Paramedic {
-    constructor(main_app, id, user_id, latitude, longitude, status) {
+    constructor(main_app, id, user_id, latitude, longitude, status, isochrones) {
         const self = this;
 
         self.main_app = main_app;
@@ -113,8 +113,9 @@ class Paramedic {
         self.latitude = latitude;
         self.longitude = longitude;
         self.status = status;
+        self.isochrones = isochrones;
 
-        let blueMarker =
+        self.isochrones_polygon = L.polygon(self.isochrones, {color: 'blue'}).addTo(self.main_app.map);
 
         self.marker = L.marker([self.latitude, self.longitude], {icon: self.get_marker_icon()}).addTo(self.main_app.map);
     }
@@ -124,7 +125,9 @@ class Paramedic {
         self.latitude = data.latitude;
         self.longitude = data.longitude;
         self.status = data.status;
+        self.isochrones = data.isochrones;
 
+        self.isochrones_polygon.setLatLngs(self.isochrones);
         self.marker.setLatLng(new L.LatLng(self.latitude, self.longitude));
         self.marker.setIcon(self.get_marker_icon());
     }
@@ -170,6 +173,9 @@ class MainApp {
         });
 
         self.map = self.initialize_map(map_id);
+        // self.map.on('click', function (e) {
+        //     alert(e.latlng);
+        // });
 
         self.emergency_alerts = [];
         self.paramedics = [];
@@ -370,16 +376,19 @@ class MainApp {
         const self = this;
 
         let paramedic = self.paramedics.find(obj => {return obj.id === data.id});
-        if (self.user_groups)
-        if (!paramedic) {
-            paramedic = new Paramedic(self, data.id, data.user_id, data.latitude, data.longitude, data.status);
-            self.paramedics.push(paramedic);
-            return;
+        if (paramedic) {
+            paramedic.update_data(data);
         }
+
+        if (!paramedic) {
+            paramedic = new Paramedic(self, data.id, data.user_id, data.latitude, data.longitude, data.status, data.isochrones);
+            self.paramedics.push(paramedic);
+        }
+
         if (!self.user_paramedic && self.user_id === paramedic.user_id) {
             self.user_paramedic = paramedic;
         }
-        paramedic.update_data(data);
+
         if (self.user_paramedic) {
             if (self.user_paramedic.status === 'FREE' && self.directions) {
                 self.map.removeLayer(self.directions);
