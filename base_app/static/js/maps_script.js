@@ -132,8 +132,17 @@ class Paramedic {
     get_marker_icon() {
         const self = this;
 
+        let icon = 'person-standing';
+
+        if (self.status === 'IN_PROCESS') {icon = 'person-walking'}
+
+        if (self.main_app.user_paramedic) {
+            if (self.main_app.user_paramedic === self) {
+                icon = 'person-raised-hand';
+            }
+        }
         return L.AwesomeMarkers.icon({
-            icon: ((self.status === 'IN_PROCESS') ? 'person-walking' : 'person-raised-hand'),
+            icon: icon,
             markerColor: ((self.status === 'IN_PROCESS') ? 'red' : 'blue'),
             prefix: 'bi'
         });
@@ -166,7 +175,7 @@ class MainApp {
         self.paramedics = [];
 
         self.position = null;
-        self.postion_marker = null;
+        // self.postion_marker = null;
 
         if (self.user_groups.includes('paramedics')) {
             self.navigator_id = navigator.geolocation.watchPosition(
@@ -241,7 +250,7 @@ class MainApp {
 
         if (!self.position) {
             self.position = crd;
-            self.position_marker = L.marker([self.position.latitude, self.position.longitude]).addTo(self.map);
+            // self.position_marker = L.marker([self.position.latitude, self.position.longitude]).addTo(self.map);
             self.send_position(crd);
             return;
         }
@@ -249,7 +258,7 @@ class MainApp {
         if (crd.longitude !== self.position.longitude || crd.latitude !== self.position.latitude) {
             console.log(`Position changed!!: ${crd.longitude}, ${crd.latitude}`);
             self.position = crd;
-            self.position_marker.setLatLng(new L.LatLng(crd.latitude, crd.longitude));
+            // self.position_marker.setLatLng(new L.LatLng(crd.latitude, crd.longitude));
             self.send_position(crd);
         }
     }
