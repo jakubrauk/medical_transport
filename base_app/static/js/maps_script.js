@@ -2,7 +2,7 @@
 
 
 class EmergencyAlert {
-    constructor(main_app, id, start_latitude, start_longitude, additional_info, status, priority) {
+    constructor(main_app, id, start_latitude, start_longitude, additional_info, status, priority, paramedic_id) {
         const self = this;
 
         self.main_app = main_app;
@@ -12,8 +12,11 @@ class EmergencyAlert {
         self.additional_info = additional_info;
         self.status = status;
         self.priority = priority;
+        self.paramedic_id = paramedic_id;
 
         self.accept_button = $('<button>').addClass('btn btn-success btn-sm').text('Przyjmij zgłoszenie');
+        self.finish_button = $('<button>').addClass('btn btn-danger btn-sm').text('Zakończ zgłoszenie');
+
         self.popup_initialized = false;
 
         self.marker = L.marker([self.start_latitude, self.start_longitude], {icon: self.get_marker_icon()}).addTo(self.main_app.map);
@@ -35,6 +38,7 @@ class EmergencyAlert {
         self.status = data.status;
         self.priority = data.priority;
         self.additional_info = data.additional_info;
+        self.paramedic_id = data.paramedic_id;
 
         self.marker.setLatLng(new L.LatLng(self.start_latitude, self.start_longitude));
         self.marker.setIcon(self.get_marker_icon());
@@ -57,6 +61,10 @@ class EmergencyAlert {
                 self.accept_button_action();
                 self.popup.closePopup();
             });
+            self.finish_button.click(function (e) {
+                self.finish_button_action();
+                self.popup.closePopup();
+            })
         }
 
         let popup = $(`#popup_${self.id}`);
@@ -68,7 +76,15 @@ class EmergencyAlert {
                  .append($('<b>').text(self.additional_info)));
 
         if (self.main_app.user_paramedic) {
+            if (self.main_app.user_paramedic.status === 'FREE') {
                 popup.append(self.accept_button);
+            } else {
+                if (self.main_app.user_paramedic.id === self.paramedic_id) {
+                    popup.append(self.finish_button);
+                } else {
+                    popup.append($('<p>').text("Dokończ poprzednie zgłoszenie zanim rozpoczniesz kolejne!"));
+                }
+            }
         } else {
             popup.append($('<p>').text("Nie jesteś ratownikiem chujku, nie mozesz tego przyjac"));
         }
@@ -78,6 +94,12 @@ class EmergencyAlert {
         const self = this;
         console.log('accept button action');
         self.main_app.emergency_alert_accept_button(self);
+    }
+
+    finish_button_action() {
+        const self = this;
+        console.log('finish button action');
+        self.main_app.emergency_alert_finish_button(self);
     }
 }
 
@@ -254,6 +276,21 @@ class MainApp {
         }
     }
 
+    emergency_alert_finish_button(emergency_alert) {
+        const self = this;
+        if (self.user_paramedic) {
+            self.socket_send({
+                type: 'emergency_alert_finish',
+                data: {
+                    paramedic_id: self.user_paramedic.id,
+                    emergency_alert_id: emergency_alert.id,
+                }
+            });
+        } else {
+            alert("USER FINISHING ALERT IS NOT A PARAMEDIC!");
+        }
+    }
+
     socket_send(data) {
         const self = this;
 
@@ -297,7 +334,7 @@ class MainApp {
 
         let em_alert = self.emergency_alerts.find(obj => {return obj.id === data.id});
         if (!em_alert) {
-            em_alert = new EmergencyAlert(self, data.id, data.latitude, data.longitude, data.additional_info, data.status, data.priority);
+            em_alert = new EmergencyAlert(self, data.id, data.latitude, data.longitude, data.additional_info, data.status, data.priority, data.paramedic_id);
             self.emergency_alerts.push(em_alert);
             return;
         }
@@ -324,8 +361,10 @@ class MainApp {
             self.user_paramedic = paramedic;
         }
         paramedic.update_data(data);
-        if (self.user_paramedic.status === 'FREE' && self.directions) {
-            self.map.removeLayer(self.directions);
+        if (self.user_paramedic) {
+            if (self.user_paramedic.status === 'FREE' && self.directions) {
+                self.map.removeLayer(self.directions);
+            }
         }
     }
 

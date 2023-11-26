@@ -194,7 +194,8 @@ class EmergencyAlert(models.Model):
             'longitude': self.start_position_longitude,
             'additional_info': self.additional_info,
             'status': self.status,
-            'priority': self.priority
+            'priority': self.priority,
+            'paramedic_id': self.paramedic.id if self.paramedic else ''
         }
 
     def broadcast(self):

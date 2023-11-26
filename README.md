@@ -84,6 +84,8 @@ Aplikacja webowa do przyjmowania oraz rozdysponowania zgłoszeń alarmowych (kon
   - [x] Pokazywanie i aktualizowanie wszystkich zgłoszeń
 - [x] Akceptowanie zgłoszeń
 - [x] Finalizowanie zgłoszeń
+- [x] Ratownik nie moze przyjac kolejnego zgloszenia jezeli jest zajety
+- [ ] Zduplikowana lokalizacja ratownika (rozroznienie siebie od innych ratownikow)
 - [x] Generowanie i pokazywanie trasy do zgłoszenia
 - [ ] Dyspozytor moze zobaczyc trase od ratownika do zgloszenia
 - [ ] pokazywanie kto i od kiedy jest online
