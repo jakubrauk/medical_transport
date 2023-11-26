@@ -83,7 +83,9 @@ Aplikacja webowa do przyjmowania oraz rozdysponowania zgłoszeń alarmowych (kon
   - [x] aktualizacja zgłoszenia na mapie (broadcast)
   - [x] Pokazywanie i aktualizowanie wszystkich zgłoszeń
 - [x] Akceptowanie zgłoszeń
+- [x] Finalizowanie zgłoszeń
 - [x] Generowanie i pokazywanie trasy do zgłoszenia
+- [ ] Dyspozytor moze zobaczyc trase od ratownika do zgloszenia
 - [ ] pokazywanie kto i od kiedy jest online
 - [ ] usuwanie nieaktywnych ratowników / zgloszen z mapy
   - [ ] celery task do ustawiania offline, oraz dezaktywowania zgłoszeń

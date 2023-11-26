@@ -22,6 +22,11 @@ class EmergencyAlert {
         });
     }
 
+    remove_marker() {
+        const self = this;
+        self.main_app.map.removeLayer(self.marker);
+    }
+
     update_data(data) {
         const self = this;
         console.log('Emergency Alert update data called', data);
@@ -297,6 +302,12 @@ class MainApp {
             return;
         }
         em_alert.update_data(data);
+        if (em_alert.status === 'Done') {
+            // remove marker, remove alert from list
+            em_alert.remove_marker();
+            self.emergency_alerts = self.emergency_alerts.filter(item => item !== em_alert);
+            console.log(self);
+        }
     }
 
     update_paramedic(data) {
@@ -313,6 +324,9 @@ class MainApp {
             self.user_paramedic = paramedic;
         }
         paramedic.update_data(data);
+        if (self.user_paramedic.status === 'FREE' && self.directions) {
+            self.map.removeLayer(self.directions);
+        }
     }
 
     show_directions(coordinates) {
