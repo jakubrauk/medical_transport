@@ -23,6 +23,8 @@ class EmergencyAlert {
         self.popup = self.marker.bindPopup(`<div id="popup_${self.id}" style="min-width: 80px;"></div>`).on('popupopen', function (e) {
             self.set_popup_content();
         });
+
+        self.alert_in_isochrones();
     }
 
     remove_marker() {
@@ -42,6 +44,18 @@ class EmergencyAlert {
 
         self.marker.setLatLng(new L.LatLng(self.start_latitude, self.start_longitude));
         self.marker.setIcon(self.get_marker_icon());
+    }
+
+    alert_in_isochrones() {
+        const self = this;
+
+        if (self.main_app.user_paramedic) {
+            if (self.main_app.user_paramedic.isochrones_polygon) {
+                if (self.main_app.user_paramedic.isochrones_polygon.contains(self.marker.getLatLng())) {
+                    alert('Pojawiło się zgłoszenie w Twojej okolicy!');
+                }
+            }
+        }
     }
 
     get_marker_icon() {
@@ -118,6 +132,11 @@ class Paramedic {
         self.isochrones_polygon = L.polygon(self.isochrones, {color: 'blue'}).addTo(self.main_app.map);
 
         self.marker = L.marker([self.latitude, self.longitude], {icon: self.get_marker_icon()}).addTo(self.main_app.map);
+        // self.popup = self.marker.bindPopup(`<div id="popup_paramedic_${self.id}" style="min-width: 80px;"></div>`).on('popupopen', function (e) {
+        //     // self.set_popup_content();
+        //     $(`#popup_paramedic_${self.id}`).append($('<p>').text('RATOWNIK!'));
+        // });
+
     }
 
     update_data(data) {
@@ -174,7 +193,13 @@ class MainApp {
 
         self.map = self.initialize_map(map_id);
         // self.map.on('click', function (e) {
-        //     alert(e.latlng);
+        //     // alert(e.latlng);
+        //     if (self.user_paramedic) {
+        //         if (self.user_paramedic.isochrones_polygon) {
+        //             alert('Pojawilo się zgloszenie w twojej okolicy!');
+        //             // alert(self.user_paramedic.isochrones_polygon.contains(e.latlng));
+        //         }
+        //     }
         // });
 
         self.emergency_alerts = [];
