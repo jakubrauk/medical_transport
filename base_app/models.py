@@ -61,8 +61,8 @@ class Paramedic(models.Model):
             'online': self.online,
             'latitude': self.last_latitude,
             'longitude': self.last_longitude,
-            'last_lat_lng_update': self.last_lat_lng_update.strftime('%Y-%m-% %H:%M'),
-            'isochrones': self.get_isochrones_reversed(),
+            'last_lat_lng_update': self.last_lat_lng_update.strftime('%Y-%m-%d %H:%M') if self.last_lat_lng_update else '',
+            'isochrones': self.get_isochrones_reversed() if self.last_latitude else [],
             'status': self.get_status(),
         }
 
@@ -182,6 +182,7 @@ class EmergencyAlert(models.Model):
                                           (self.start_position_longitude, self.start_position_latitude))['routes'][0]['geometry']
                 self.save()
             return get_reversed_polyline_directions(decode_geometry(self.route_geometry)['coordinates'])
+        return []
 
     # def send_websocket(self):
     #     channel_layer = get_channel_layer()
@@ -202,7 +203,8 @@ class EmergencyAlert(models.Model):
             'additional_info': self.additional_info,
             'status': self.status,
             'priority': self.priority,
-            'paramedic_id': self.paramedic.id if self.paramedic else ''
+            'paramedic_id': self.paramedic.id if self.paramedic else '',
+            'directions': self.get_directions()
         }
 
     def broadcast(self):

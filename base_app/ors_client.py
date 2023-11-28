@@ -5,7 +5,7 @@ from openrouteservice.isochrones import isochrones
 import os
 
 
-client = openrouteservice.Client(key=os.environ.get("ORS_KEY"))
+client = openrouteservice.Client(base_url='http://localhost:8080/ors')
 
 
 def get_directions(start_coords, end_coords):

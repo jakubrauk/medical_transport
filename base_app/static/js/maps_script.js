@@ -2,7 +2,7 @@
 
 
 class EmergencyAlert {
-    constructor(main_app, id, start_latitude, start_longitude, additional_info, status, priority, paramedic_id) {
+    constructor(main_app, id, start_latitude, start_longitude, additional_info, status, priority, paramedic_id, directions) {
         const self = this;
 
         self.main_app = main_app;
@@ -13,6 +13,7 @@ class EmergencyAlert {
         self.status = status;
         self.priority = priority;
         self.paramedic_id = paramedic_id;
+        self.directions = directions;
 
         self.accept_button = $('<button>').addClass('btn btn-success btn-sm').text('Przyjmij zgłoszenie');
         self.finish_button = $('<button>').addClass('btn btn-danger btn-sm').text('Zakończ zgłoszenie');
@@ -25,11 +26,28 @@ class EmergencyAlert {
         });
 
         self.alert_in_isochrones();
+        self.show_directions();
     }
 
     remove_marker() {
         const self = this;
         self.main_app.map.removeLayer(self.marker);
+    }
+
+    show_directions() {
+        const self = this;
+        console.log('1. EMERGENCY SHOW DIRECTIONS CALLED');
+        console.log(self);
+        if (self.directions) {
+            console.log('2. EMERGENCY SHOW DIRECTIONS CALLED');
+            if (self.main_app.user_paramedic) {
+                console.log('3. EMERGENCY SHOW DIRECTIONS CALLED');
+                if (self.main_app.user_paramedic.id === self.paramedic_id) {
+                    console.log('4. EMERGENCY SHOW DIRECTIONS CALLED');
+                    self.main_app.show_directions(self.directions);
+                }
+            }
+        }
     }
 
     update_data(data) {
@@ -41,18 +59,21 @@ class EmergencyAlert {
         self.priority = data.priority;
         self.additional_info = data.additional_info;
         self.paramedic_id = data.paramedic_id;
+        self.directions = data.directions;
 
         self.marker.setLatLng(new L.LatLng(self.start_latitude, self.start_longitude));
         self.marker.setIcon(self.get_marker_icon());
+        self.show_directions();
     }
 
     alert_in_isochrones() {
         const self = this;
-
-        if (self.main_app.user_paramedic) {
-            if (self.main_app.user_paramedic.isochrones_polygon) {
-                if (self.main_app.user_paramedic.isochrones_polygon.contains(self.marker.getLatLng())) {
-                    alert('Pojawiło się zgłoszenie w Twojej okolicy!');
+        if (self.status === 'Pending') {
+            if (self.main_app.user_paramedic) {
+                if (self.main_app.user_paramedic.isochrones_polygon) {
+                    if (self.main_app.user_paramedic.isochrones_polygon.contains(self.marker.getLatLng())) {
+                        alert('Pojawiło się zgłoszenie w Twojej okolicy!');
+                    }
                 }
             }
         }
@@ -128,10 +149,16 @@ class Paramedic {
         self.longitude = longitude;
         self.status = status;
         self.isochrones = isochrones;
+        self.isochrones_polygon = null;
+        self.marker = null;
 
-        self.isochrones_polygon = L.polygon(self.isochrones, {color: 'blue'}).addTo(self.main_app.map);
+        if (self.isochrones) {
+            self.isochrones_polygon = L.polygon(self.isochrones, {color: 'blue'}).addTo(self.main_app.map);
+        }
 
-        self.marker = L.marker([self.latitude, self.longitude], {icon: self.get_marker_icon()}).addTo(self.main_app.map);
+        if (self.latitude && self.longitude) {
+            self.marker = L.marker([self.latitude, self.longitude], {icon: self.get_marker_icon()}).addTo(self.main_app.map);
+        }
         // self.popup = self.marker.bindPopup(`<div id="popup_paramedic_${self.id}" style="min-width: 80px;"></div>`).on('popupopen', function (e) {
         //     // self.set_popup_content();
         //     $(`#popup_paramedic_${self.id}`).append($('<p>').text('RATOWNIK!'));
@@ -146,7 +173,12 @@ class Paramedic {
         self.status = data.status;
         self.isochrones = data.isochrones;
 
-        self.isochrones_polygon.setLatLngs(self.isochrones);
+        if (self.isochrones) {
+            if (!self.isochrones_polygon) {
+                self.isochrones_polygon = L.polygon(self.isochrones, {color: 'blue'}).addTo(self.main_app.map);
+            }
+            self.isochrones_polygon.setLatLngs(self.isochrones);
+        }
         self.marker.setLatLng(new L.LatLng(self.latitude, self.longitude));
         self.marker.setIcon(self.get_marker_icon());
     }
@@ -384,7 +416,7 @@ class MainApp {
 
         let em_alert = self.emergency_alerts.find(obj => {return obj.id === data.id});
         if (!em_alert) {
-            em_alert = new EmergencyAlert(self, data.id, data.latitude, data.longitude, data.additional_info, data.status, data.priority, data.paramedic_id);
+            em_alert = new EmergencyAlert(self, data.id, data.latitude, data.longitude, data.additional_info, data.status, data.priority, data.paramedic_id, data.directions);
             self.emergency_alerts.push(em_alert);
             return;
         }
@@ -423,7 +455,8 @@ class MainApp {
 
     show_directions(coordinates) {
         const self = this;
-
-        self.directions = L.polyline(coordinates, {color: 'red'}).addTo(self.map);
+        if (!self.directions) {
+            self.directions = L.polyline(coordinates, {color: 'red'}).addTo(self.map);
+        }
     }
 }
