@@ -87,14 +87,35 @@ Aplikacja webowa do przyjmowania oraz rozdysponowania zgłoszeń alarmowych (kon
 - [x] Ratownik nie moze przyjac kolejnego zgloszenia jezeli jest zajety
 - [x] Zduplikowana lokalizacja ratownika (rozroznienie siebie od innych ratownikow)
 - [x] Generowanie i pokazywanie trasy do zgłoszenia
-- [x] Pokazywanie isochrony
+- [x] Pokazywanie izochron
+- [x] Pokazywanie zgloszen w izochronie
+- [ ] Dynamiczne generowanie trasy po zmianie położenia ratownika
+- [ ] Pokazywanie przewidywanego czasu dotarcia do zgłoszenia przez ratownika
 - [ ] Dyspozytor moze bezposrednio dodawac zgloszenia po kliknieciu na mapie
 - [ ] Dyspozytor moze zobaczyc jakie zgloszenie obsluguje ratownik
 - [ ] Dyspozytor moze zobaczyc trase od ratownika do zgloszenia
 - [ ] pokazywanie kto i od kiedy jest online
 - [ ] usuwanie nieaktywnych ratowników / zgloszen z mapy
-  - [ ] celery task do ustawiania offline, oraz dezaktywowania zgłoszeń
+  - [ ] celery task do ustawiania ratownikow offline, oraz dezaktywowania zgłoszeń
 - [x] Zmiana User z ForeignKey na onetoonefield
+
+### TODO PRACA INZ
+- [ ] Opracowanie rozdziałów
+  - [ ] Wstęp
+    - [ ] Cel pracy
+    - [ ] Zakres pracy
+  - [ ] Analiza dostępnych rozwiązań
+    - [ ] Zoll RescueNet
+    - [ ] FirstWatch
+    - [ ] PulsePpint
+  - [ ] Projekt systemu
+    - [x] Założenia projektowe
+    - [x] Wymagania funkcjonalne
+    - [ ] Wymagania niefunkcjonalne
+  - [ ] Wykorzystane technologie
+  - [ ] Implementacja
+  - [ ] Testy
+  - [ ] Podsumowanie
 
 
 ### Konkretny plan działania

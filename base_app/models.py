@@ -18,6 +18,7 @@ class Paramedic(models.Model):
     last_latitude = models.CharField(max_length=254, null=True, blank=True)
     last_longitude = models.CharField(max_length=254, null=True, blank=True)
     last_lat_lng_update = models.DateTimeField(null=True, blank=True)
+    gps_accuracy = models.FloatField(default=0)
     channel_name = models.CharField(max_length=254)
 
     @classmethod
@@ -44,9 +45,16 @@ class Paramedic(models.Model):
         self.online = True
         self.last_latitude = crd.get('latitude')
         self.last_longitude = crd.get('longitude')
+        self.gps_accuracy = crd.get('accuracy')
         self.last_lat_lng_update = datetime.today()
         self.save()
+        if emergency_alert := self.get_active_emergency_job():
+            emergency_alert.update_directions()
+            emergency_alert.broadcast()
         self.broadcast()
+
+    def get_active_emergency_job(self):
+        return EmergencyAlert.objects.filter(paramedic=self, status=EmergencyAlert.EmergencyStatus.IN_PROCESS).last()
 
     def get_status(self):
         # IN_PROCESS when EmergencyAlert with status == IN_PROCESS and paramedic == self exists
@@ -61,6 +69,8 @@ class Paramedic(models.Model):
             'online': self.online,
             'latitude': self.last_latitude,
             'longitude': self.last_longitude,
+            'accuracy': self.gps_accuracy,
+            'active_emergency_alert_id': self.get_active_emergency_job().id if self.get_active_emergency_job() else '',
             'last_lat_lng_update': self.last_lat_lng_update.strftime('%Y-%m-%d %H:%M') if self.last_lat_lng_update else '',
             'isochrones': self.get_isochrones_reversed() if self.last_latitude else [],
             'status': self.get_status(),
@@ -135,6 +145,7 @@ class EmergencyAlert(models.Model):
     date_accepted_rejected = models.DateTimeField(null=True, blank=True)
     date_finished = models.DateTimeField(null=True, blank=True)
     route_geometry = models.TextField(null=True, blank=True)
+    route_duration = models.FloatField(default=0, null=True, blank=True)
 
     @classmethod
     def get_priority_from_number(cls, priority_number):
@@ -163,11 +174,12 @@ class EmergencyAlert(models.Model):
         return emergency
 
     def accept(self, paramedic):
-        self.paramedic = paramedic
-        self.status = self.EmergencyStatus.IN_PROCESS
-        self.save()
-        self.broadcast()
-        self.paramedic.broadcast()
+        if not self.paramedic:
+            self.paramedic = paramedic
+            self.status = self.EmergencyStatus.IN_PROCESS
+            self.save()
+            self.broadcast()
+            self.paramedic.broadcast()
 
     def finish(self):
         self.status = self.EmergencyStatus.DONE
@@ -175,12 +187,19 @@ class EmergencyAlert(models.Model):
         self.broadcast()
         self.paramedic.broadcast()
 
+    def update_directions(self):
+        if self.paramedic:
+            if self.paramedic.last_latitude:
+                directions = get_directions((self.paramedic.last_longitude, self.paramedic.last_latitude),
+                                          (self.start_position_longitude, self.start_position_latitude))
+                self.route_duration = directions['routes'][0]['summary']['duration']
+                self.route_geometry = directions['routes'][0]['geometry']
+                self.save()
+
     def get_directions(self):
         if self.paramedic:
             if not self.route_geometry:
-                self.route_geometry = get_directions((self.paramedic.last_longitude, self.paramedic.last_latitude),
-                                          (self.start_position_longitude, self.start_position_latitude))['routes'][0]['geometry']
-                self.save()
+                self.update_directions()
             return get_reversed_polyline_directions(decode_geometry(self.route_geometry)['coordinates'])
         return []
 
@@ -204,7 +223,8 @@ class EmergencyAlert(models.Model):
             'status': self.status,
             'priority': self.priority,
             'paramedic_id': self.paramedic.id if self.paramedic else '',
-            'directions': self.get_directions()
+            'directions': self.get_directions(),
+            'duration': self.route_duration,
         }
 
     def broadcast(self):

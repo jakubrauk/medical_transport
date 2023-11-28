@@ -28,7 +28,7 @@ def create_dispositor(request):
         form = DispositorForm(request.POST)
         if form.is_valid():
             form.save()
-        return redirect('base_app:index')
+            return redirect('base_app:index')
     return render(request, 'base_app/create_dispositor.html', {'form': form})
 
 
@@ -42,7 +42,7 @@ def create_paramedic(request):
         form = ParamedicForm(request.POST)
         if form.is_valid():
             form.save()
-        return redirect('base_app:index')
+            return redirect('base_app:index')
 
     return render(request, 'base_app/create_paramedic.html', {'form': form})
 

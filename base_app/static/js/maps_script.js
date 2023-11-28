@@ -2,7 +2,7 @@
 
 
 class EmergencyAlert {
-    constructor(main_app, id, start_latitude, start_longitude, additional_info, status, priority, paramedic_id, directions) {
+    constructor(main_app, id, start_latitude, start_longitude, additional_info, status, priority, paramedic_id, directions, duration) {
         const self = this;
 
         self.main_app = main_app;
@@ -14,6 +14,7 @@ class EmergencyAlert {
         self.priority = priority;
         self.paramedic_id = paramedic_id;
         self.directions = directions;
+        self.duration = duration;
 
         self.accept_button = $('<button>').addClass('btn btn-success btn-sm').text('Przyjmij zgłoszenie');
         self.finish_button = $('<button>').addClass('btn btn-danger btn-sm').text('Zakończ zgłoszenie');
@@ -60,6 +61,7 @@ class EmergencyAlert {
         self.additional_info = data.additional_info;
         self.paramedic_id = data.paramedic_id;
         self.directions = data.directions;
+        self.duration = data.duration;
 
         self.marker.setLatLng(new L.LatLng(self.start_latitude, self.start_longitude));
         self.marker.setIcon(self.get_marker_icon());
@@ -139,7 +141,7 @@ class EmergencyAlert {
 }
 
 class Paramedic {
-    constructor(main_app, id, user_id, latitude, longitude, status, isochrones) {
+    constructor(main_app, id, user_id, latitude, longitude, status, isochrones, accuracy, active_emergency_alert_id) {
         const self = this;
 
         self.main_app = main_app;
@@ -149,21 +151,86 @@ class Paramedic {
         self.longitude = longitude;
         self.status = status;
         self.isochrones = isochrones;
+        self.accuracy = accuracy;
+        self.active_emergency_alert_id = active_emergency_alert_id;
+
         self.isochrones_polygon = null;
         self.marker = null;
+        self.popup = null;
+        self.popup_initialized = false;
+        self.isochrone_visible = false;
 
         if (self.isochrones) {
+            // TODO show on init when main_app.user_paramedic === self
             self.isochrones_polygon = L.polygon(self.isochrones, {color: 'blue'}).addTo(self.main_app.map);
+            self.isochrone_visible = true;
+        }
+
+        self.show_isochrone_button = $('<button>').addClass('btn btn-sm btn-primary').text(self.get_isochrone_button_text());
+        self.fly_to_emergency_allert_button = $('<button>').addClass('btn btn-sm btn-success').text('Pokaż zgłoszenie');
+        if (!self.active_emergency_alert_id) {
+            self.fly_to_emergency_allert_button.addClass('d-none');
         }
 
         if (self.latitude && self.longitude) {
             self.marker = L.marker([self.latitude, self.longitude], {icon: self.get_marker_icon()}).addTo(self.main_app.map);
+            self.popup = self.marker.bindPopup(`<div id="popup_paramedic_${self.id}" style="min-width: 80px;"></div>`).on('popupopen', function (e) {
+                self.set_popup_content();
+            });
         }
-        // self.popup = self.marker.bindPopup(`<div id="popup_paramedic_${self.id}" style="min-width: 80px;"></div>`).on('popupopen', function (e) {
-        //     // self.set_popup_content();
-        //     $(`#popup_paramedic_${self.id}`).append($('<p>').text('RATOWNIK!'));
-        // });
+    }
 
+    set_popup_content() {
+        const self = this;
+
+        if (!self.popup_initialized) {
+            self.show_isochrone_button.click(function (e) {
+                self.show_isochrone_button_action();
+            });
+            self.fly_to_emergency_allert_button.click(function (e) {
+                self.fly_to_emergency_alert_button_action();
+            });
+        }
+
+        self.popup_initialized = true;
+
+        let popup = $(`#popup_paramedic_${self.id}`);
+        popup
+            .append($('<p>').text('RATOWNIK!'))
+            .append(self.show_isochrone_button)
+            .append(self.fly_to_emergency_allert_button);
+    }
+
+    get_isochrone_button_text() {
+        const self = this;
+        return ((self.isochrone_visible) ? 'Ukryj izochrone' : 'Pokaż izochrone');
+    }
+
+    show_isochrone_button_action() {
+        const self = this;
+
+        if (self.isochrone_visible) {
+            self.main_app.map.removeLayer(self.isochrones_polygon);
+            self.isochrone_visible = false;
+        } else {
+            if (!self.isochrones_polygon && self.isochrones) {
+                self.isochrones_polygon = L.polygon(self.isochrones, {color: 'blue'});
+            }
+            self.isochrones_polygon.addTo(self.main_app.map);
+            self.isochrone_visible = true;
+        }
+        self.show_isochrone_button.text(self.get_isochrone_button_text());
+    }
+
+    fly_to_emergency_alert_button_action() {
+        const self = this;
+
+        if (self.active_emergency_alert_id) {
+            let em_alert = self.main_app.get_emergency_alert(self.active_emergency_alert_id);
+            if (em_alert) {
+                self.main_app.map.flyTo(em_alert.marker.getLatLng(), 15);
+            }
+        }
     }
 
     update_data(data) {
@@ -172,6 +239,14 @@ class Paramedic {
         self.longitude = data.longitude;
         self.status = data.status;
         self.isochrones = data.isochrones;
+        self.accuracy = data.accuracy;
+        self.active_emergency_alert_id = data.active_emergency_alert_id;
+
+        if (self.active_emergency_alert_id) {
+            self.fly_to_emergency_allert_button.removeClass('d-none');
+        } else {
+            self.fly_to_emergency_allert_button.addClass('d-none');
+        }
 
         if (self.isochrones) {
             if (!self.isochrones_polygon) {
@@ -307,6 +382,11 @@ class MainApp {
         }
     }
 
+    get_emergency_alert(alert_id) {
+        const self = this;
+        return self.emergency_alerts.find(obj => {return obj.id === alert_id});
+    }
+
     watch_position_success(pos) {
         const self = this;
         const crd = pos.coords;
@@ -416,7 +496,17 @@ class MainApp {
 
         let em_alert = self.emergency_alerts.find(obj => {return obj.id === data.id});
         if (!em_alert) {
-            em_alert = new EmergencyAlert(self, data.id, data.latitude, data.longitude, data.additional_info, data.status, data.priority, data.paramedic_id, data.directions);
+            em_alert = new EmergencyAlert(
+                self,
+                data.id,
+                data.latitude,
+                data.longitude,
+                data.additional_info,
+                data.status, data.priority,
+                data.paramedic_id,
+                data.directions,
+                data.duration
+            );
             self.emergency_alerts.push(em_alert);
             return;
         }
@@ -438,7 +528,17 @@ class MainApp {
         }
 
         if (!paramedic) {
-            paramedic = new Paramedic(self, data.id, data.user_id, data.latitude, data.longitude, data.status, data.isochrones);
+            paramedic = new Paramedic(
+                self,
+                data.id,
+                data.user_id,
+                data.latitude,
+                data.longitude,
+                data.status,
+                data.isochrones,
+                data.accuracy,
+                data.active_emergency_alert_id
+            );
             self.paramedics.push(paramedic);
         }
 
@@ -457,6 +557,8 @@ class MainApp {
         const self = this;
         if (!self.directions) {
             self.directions = L.polyline(coordinates, {color: 'red'}).addTo(self.map);
+        } else {
+            self.directions.setLatLngs(coordinates);
         }
     }
 }

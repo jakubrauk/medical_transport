@@ -1,3 +1,4 @@
+from pprint import pprint
 import openrouteservice
 from openrouteservice import convert
 from openrouteservice.directions import directions
@@ -9,7 +10,9 @@ client = openrouteservice.Client(base_url='http://localhost:8080/ors')
 
 
 def get_directions(start_coords, end_coords):
-    return directions(client, (start_coords, end_coords))
+    dirs = directions(client, (start_coords, end_coords))
+    # pprint(dirs)
+    return dirs
 
 
 def get_decoded_directions(start_coords, end_coords):
