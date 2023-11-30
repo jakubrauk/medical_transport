@@ -3,7 +3,7 @@ from django.contrib.auth.forms import UserCreationForm, AuthenticationForm
 from django.contrib.auth.models import Group
 from django.utils.translation import gettext_lazy as _
 
-from base_app.models import Dispositor, Paramedic
+from base_app.models import Dispositor, Paramedic, ParamedicSettings
 
 
 class CustomAuthenticationForm(AuthenticationForm):
@@ -70,3 +70,13 @@ class ParamedicForm(DispositorForm):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.fields['username'].label = _('Nazwa użytkownika - Ratownika')
+
+
+class ParamedicSettingsForm(forms.ModelForm):
+    class Meta:
+        model = ParamedicSettings
+        fields = ('routing_profile', 'isochrone_range')
+        labels = {
+            'routing_profile': 'Rodzaj lokomocji',
+            'isochrone_range': 'Zasięg izochrony (wyrażany w sekundach)'
+        }

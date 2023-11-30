@@ -2,6 +2,7 @@ import json
 import re
 from datetime import datetime
 
+import openrouteservice
 from asgiref.sync import async_to_sync
 from channels.layers import get_channel_layer
 from django.db import models
@@ -86,11 +87,35 @@ class Paramedic(models.Model):
         # get online paramedics
         return [pm.get_dict() for pm in cls.objects.filter(online=True)]
 
-    def get_isochrones(self, _range=60):
-        return get_isochrones([(self.last_longitude, self.last_latitude)], _range=_range)['features'][0]['geometry']['coordinates'][0]
+    def get_settings(self):
+        if not self.paramedicsettings:
+            return ParamedicSettings.objects.get_or_create(paramedic=self)[0]
+        return self.paramedicsettings
 
-    def get_isochrones_reversed(self, _range=120):
-        return [list(reversed(point)) for point in self.get_isochrones(_range=_range)]
+    def get_isochrones(self, _profile='driving-car', _range=300):
+        return get_isochrones([(self.last_longitude, self.last_latitude)], _profile=_profile, _range=_range)['features'][0]['geometry']['coordinates'][0]
+
+    def get_isochrones_reversed(self, _range=300):
+        try:
+            settings = self.get_settings()
+            isochrones = [list(reversed(point)) for point in
+                          self.get_isochrones(_profile=settings.routing_profile, _range=settings.isochrone_range)]
+        except openrouteservice.exceptions.ApiError as api_error:
+            print('Isochrones api error occured!')
+            print(api_error)
+            isochrones = []
+        return isochrones
+
+
+class ParamedicSettings(models.Model):
+    class RoutingProfile(models.TextChoices):
+        DRIVING_CAR = "driving-car", "Poruszanie samochodem"
+        FOOT_WALKING = "foot-walking", "Poruszanie pieszo"
+        CYCLING_REGULAR = "cycling-regular", "Poruszanie rowerem"
+
+    paramedic = models.OneToOneField(Paramedic, on_delete=models.CASCADE)
+    routing_profile = models.CharField(max_length=30, choices=RoutingProfile.choices, default=RoutingProfile.DRIVING_CAR)
+    isochrone_range = models.IntegerField(default=120)  # in seconds
 
 
 class Dispositor(models.Model):
@@ -189,9 +214,11 @@ class EmergencyAlert(models.Model):
 
     def update_directions(self):
         if self.paramedic:
+            settings = self.paramedic.get_settings()
             if self.paramedic.last_latitude:
                 directions = get_directions((self.paramedic.last_longitude, self.paramedic.last_latitude),
-                                          (self.start_position_longitude, self.start_position_latitude))
+                                            (self.start_position_longitude, self.start_position_latitude),
+                                            _profile=settings.routing_profile)
                 self.route_duration = directions['routes'][0]['summary']['duration']
                 self.route_geometry = directions['routes'][0]['geometry']
                 self.save()
@@ -202,17 +229,6 @@ class EmergencyAlert(models.Model):
                 self.update_directions()
             return get_reversed_polyline_directions(decode_geometry(self.route_geometry)['coordinates'])
         return []
-
-    # def send_websocket(self):
-    #     channel_layer = get_channel_layer()
-    #     msg = {
-    #         'type': 'EmergencyAlert.send_websocket',
-    #         'message': {
-    #             'emergency_alert_id': self.id,
-    #             'additional_info': self.additional_info
-    #         }
-    #     }
-    #     async_to_sync(channel_layer.group_send)('base_app', {'type': 'send.new.data', 'text': msg})
 
     def get_dict(self):
         return {

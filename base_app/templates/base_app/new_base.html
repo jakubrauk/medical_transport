@@ -54,15 +54,24 @@
                         <a href="{{ create_medic_url }}"
                            class="{% if request.path == create_medic_url %}active {% else %}{% endif %}nav-link py-3 border-bottom"
                            title="" data-bs-toggle="tooltip"
-                           data-bs-placement="right" data-bs-original-title="CreateDispositor">
+                           data-bs-placement="right" data-bs-original-title="CreateParamedic">
                             <img src="{% static 'bootstrap-icons-1.11.0/person-add.svg' %}" width="40" height="32"
                                  alt="">
                         </a>
                     </li>
                 {% endif %}
-                <li>
-                    <button class="btn btn-sm btn-primary" id="send_button">Send</button>
-                </li>
+                {% if user.paramedic %}
+                    <li>
+                        {% url 'base_app:paramedic_settings' as paramedic_settings %}
+                        <a href="{{ paramedic_settings }}"
+                           class="{% if request.path == paramedic_settings %}active {% endif %}nav-link py-3 border-bottom"
+                           title="" data-bs-toggle="tooltip"
+                           data-bs-placement="right" data-bs-original-title="ParamedicSettings">
+                            <img src="{% static 'bootstrap-icons-1.11.0/person-fill-gear.svg' %}" alt="" width="40"
+                                 height="32">
+                        </a>
+                    </li>
+                {% endif %}
             </ul>
             <div class="dropdown border-top">
                 <a href="#"
