@@ -88,7 +88,7 @@ class Paramedic(models.Model):
         return [pm.get_dict() for pm in cls.objects.filter(online=True)]
 
     def get_settings(self):
-        if not self.paramedicsettings:
+        if not hasattr(self, 'paramedicsettings'):
             return ParamedicSettings.objects.get_or_create(paramedic=self)[0]
         return self.paramedicsettings
 

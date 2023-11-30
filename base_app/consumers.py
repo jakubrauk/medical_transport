@@ -53,6 +53,7 @@ class BaseAppConsumer(WebsocketConsumer):
             'position_update': self.position_update,
             'emergency_alert_accept': self.emergency_alert_accept,
             'emergency_alert_finish': self.emergency_alert_finish,
+            'create_emergency_alert': self.create_emergency_alert,
             'test_button': self.test_button_receive
         }.get(_type)(_data)
 
@@ -75,3 +76,6 @@ class BaseAppConsumer(WebsocketConsumer):
     def emergency_alert_finish(self, _data):
         emergency_alert = EmergencyAlert.objects.get(id=_data.get('emergency_alert_id'))
         emergency_alert.finish()
+
+    def create_emergency_alert(self, _data):
+        EmergencyAlert.create_from_api(_data)

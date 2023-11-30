@@ -279,7 +279,7 @@ class Paramedic {
 }
 
 class MainApp {
-    constructor(map_id, js_lookup, test_button_id) {
+    constructor(map_id, js_lookup, test_button_id, alert_form_modal_id) {
         const self = this;
 
         self.user_groups = js_lookup['user_groups'];
@@ -287,6 +287,11 @@ class MainApp {
         self.user_paramedic = null;  // User using app instance - paramedic
         self.directions = null;
         self.test_button_id = test_button_id;
+        self.alert_form_modal = $(`#${alert_form_modal_id}`);
+        self.save_alert_button = self.alert_form_modal.find('#save_alert_button');
+        self.save_alert_button.click(function (e) {
+            self.save_alert();
+        });
 
         $('#' + test_button_id).click(function (e) {
             console.log('test button clicked');
@@ -299,15 +304,15 @@ class MainApp {
         });
 
         self.map = self.initialize_map(map_id);
-        // self.map.on('click', function (e) {
-        //     // alert(e.latlng);
-        //     if (self.user_paramedic) {
-        //         if (self.user_paramedic.isochrones_polygon) {
-        //             alert('Pojawilo się zgloszenie w twojej okolicy!');
-        //             // alert(self.user_paramedic.isochrones_polygon.contains(e.latlng));
-        //         }
-        //     }
-        // });
+        if ('dispositor' in self.user_groups || self.user_groups.length === 0) {
+            self.map.on('click', function (e) {
+                self.alert_form_modal.find('#priority_select').val('1');
+                self.alert_form_modal.find('#alert_additional_info').val('');
+                self.alert_form_modal.find('#alert_latitude').val(e.latlng.lat);
+                self.alert_form_modal.find('#alert_longitude').val(e.latlng.lng);
+                self.alert_form_modal.modal('show');
+            });
+        }
 
         self.emergency_alerts = [];
         self.paramedics = [];
@@ -380,6 +385,23 @@ class MainApp {
         for (let emergency_alert of data['emergency_alerts']) {
             self.update_emergency_alert(emergency_alert);
         }
+    }
+
+    save_alert() {
+        const self = this;
+
+        let data = {
+            type: 'create_emergency_alert',
+            data: {
+                startPositionLatitude: self.alert_form_modal.find('#alert_latitude').val(),
+                startPositionLongitude: self.alert_form_modal.find('#alert_longitude').val(),
+                priority: self.alert_form_modal.find('#priority_select').val(),
+                additionalInfo: self.alert_form_modal.find('#alert_additional_info').val()
+            }
+        }
+        self.alert_form_modal.modal('hide');
+        self.socket_send(data);
+        console.log(data);
     }
 
     get_emergency_alert(alert_id) {

@@ -35,6 +35,50 @@
     <div class="card h-100" style="padding: 0;">
         <div class="card-body">
             <div id="map"></div>
+
+            <div id="alertFormModal" class="modal" tabindex="-1">
+                <div class="modal-dialog modal-dialog-centered">
+                    <div class="modal-content">
+                        <form>
+                            <div class="modal-header">
+                                <h5 class="modal-title">Dodaj zgłoszenie</h5>
+                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                            </div>
+                            <div class="modal-body">
+                                <div class="row">
+                                    <div class="col-6">
+                                        <label for="alert_latitude" class="form-label">Szerokość geograficzna</label>
+                                        <input id="alert_latitude" name="latitude" type="text" class="form-control" readonly>
+                                    </div>
+                                    <div class="col-6">
+                                        <label for="alert_longitude" class="form-label">Długość geograficzna</label>
+                                        <input id="alert_longitude" name="longitude" type="text" class="form-control" readonly>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-12">
+                                        <label for="priority_select" class="form-label">Priorytet</label>
+                                        <select name="priority" id="priority_select" class="form-control">
+                                            <option value="1">Normalny</option>
+                                            <option value="2">Średni</option>
+                                            <option value="3">Wysoki</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-12">
+                                        <label for="alert_additional_info" class="form-label">Opis zgłoszenia</label>
+                                        <textarea name="alert_additional_info" id="alert_additional_info" cols="20" rows="5" class="form-control"></textarea>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" id="save_alert_button" class="btn btn-primary">Zapisz zgłoszenie</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
 {% endblock content %}
@@ -51,7 +95,7 @@
         }
         console.log(js_lookup);
 
-        var main_app = new MainApp('map', js_lookup, 'send_button');
+        var main_app = new MainApp('map', js_lookup, 'send_button', 'alertFormModal');
 
     </script>
 {% endblock scripts %}
