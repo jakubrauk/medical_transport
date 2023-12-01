@@ -89,10 +89,10 @@ Aplikacja webowa do przyjmowania oraz rozdysponowania zgłoszeń alarmowych (kon
 - [x] Generowanie i pokazywanie trasy do zgłoszenia
 - [x] Pokazywanie izochron
 - [x] Pokazywanie zgloszen w izochronie
-- [ ] Dynamiczne generowanie trasy po zmianie położenia ratownika
+- [x] Dynamiczne generowanie trasy po zmianie położenia ratownika
 - [ ] Pokazywanie przewidywanego czasu dotarcia do zgłoszenia przez ratownika
-- [ ] Dyspozytor moze bezposrednio dodawac zgloszenia po kliknieciu na mapie
-- [ ] Dyspozytor moze zobaczyc jakie zgloszenie obsluguje ratownik
+- [x] Dyspozytor moze bezposrednio dodawac zgloszenia po kliknieciu na mapie
+- [x] Dyspozytor moze zobaczyc jakie zgloszenie obsluguje ratownik
 - [ ] Dyspozytor moze zobaczyc trase od ratownika do zgloszenia
 - [ ] pokazywanie kto i od kiedy jest online
 - [ ] usuwanie nieaktywnych ratowników / zgloszen z mapy
