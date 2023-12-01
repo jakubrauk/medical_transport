@@ -80,6 +80,9 @@ class ParamedicSettingsForm(forms.ModelForm):
             'routing_profile': 'Rodzaj lokomocji',
             'isochrone_range': 'Zasięg izochrony (wyrażany w sekundach)'
         }
+        widgets = {
+            'isochrone_range': forms.NumberInput(attrs={'min': 60, 'max': 2800})
+        }
 
 
 class SettingsForm(forms.ModelForm):
