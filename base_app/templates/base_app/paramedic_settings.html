@@ -5,10 +5,10 @@
         <div class="col">
             <div class="card mt-3">
                 <div class="card-header">
-                    Utwórz nowe konto dyspozytora
+                    Ustawienia ratownika - {{ user.username }}
                 </div>
                 <div class="card-body">
-                    <form action="{% url 'base_app:create_dispositor' %}" method="POST">
+                    <form action="{% url 'base_app:paramedic_settings' %}" method="POST">
                         {% csrf_token %}
                         {{ form|crispy }}
                         <br>

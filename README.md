@@ -3,6 +3,9 @@
 ## Allow non-SSL geolocation
 https://stackoverflow.com/questions/39366758/geolocation-without-ssl-connection
 
+## Leaflet awesome-markers
+https://github.com/lennardv2/Leaflet.awesome-markers
+
 w przeglądarce:
 ```
 chrome://flags/#unsafely-treat-insecure-origin-as-secure
@@ -11,6 +14,36 @@ w CLI:
 ```bash
 google-chrome --args --unsafely-treat-insecure-origin-as-secure="http://whatever.test"
 ```
+
+uruchomienie serwera:
+```bash
+python manage.py runserver
+```
+
+uruchomienie redis:
+```bash
+redis-server
+```
+
+uruchomienie celery beat:
+```bash
+celery -A medical_transport beat
+```
+
+uruchomienie celery worker:
+```bash
+celery -A medical_transport worker -B
+```
+
+
+### Kolory markerów EmergencyAlert
+- PENDING == red
+- IN_PROCESS == green
+
+### Kolory markerów Paramedic
+- IN_PROCESS == red
+- FREE == blue
+
 
 ### Opis
 Aplikacja webowa do przyjmowania oraz rozdysponowania zgłoszeń alarmowych (konkretna lokalizacja na mapie, priorytet, opcjonalnie finalna destynacja). Na mapie widoczni są zalogowani ratownicy. Dyspozytor widzi wszystkie zgłoszenia oraz wszystkich ratowników. Jeżeli zgłoszenie zostanie przypisane do ratownika, wyznaczana zostaje trasa (openrouteservice).
@@ -29,32 +62,67 @@ Aplikacja webowa do przyjmowania oraz rozdysponowania zgłoszeń alarmowych (kon
 - additionalInfo - Text
 
 
-### 6.11.2023 TODO
+### TODO
 - [x] Responsywna mapa 
 - [ ] Sidebar
   - [x] Podstawowy sidebar
   - [ ] Responsywny, zwijany do góry?
   - [ ] Sidebar rozwijany
   - [ ] Zmienne motywy - bg-dark, bg-light
-- [ ] Django channels - komunikacja na żywo (back-front)
+- [x] Django channels - komunikacja na żywo (back-front)
   - [x] Podstawowa komunikacja serwer-front
-  - [ ] Osobne channels dla dyspozytorów i ratowników
-  - [ ] W pełni działająca komunikacja serwer-front
+  - [x] W pełni działająca komunikacja serwer-front
+  - [x] websocket automatyczne wznawianie połączenia
 - [x] Pokazywanie aktualnej lokalizacji z przeglądarki
-- [ ] Zapisywanie aktualnej pozycji ratownika
-- [ ] Zapisywanie ostatniej aktualizacji lokalizacji (watchPositition) - brak możliwości przetestowania lokalnie
+- [x] Zapisywanie aktualnej pozycji ratownika
+- [x] Zapisywanie ostatniej aktualizacji lokalizacji (watchPositition) - brak możliwości przetestowania lokalnie
 - [x] Logowanie, Rejestracja ratowników, dyspozytorów
-- [ ] Zapisywanie zgłoszeń
-- [ ] Pokazywanie zgłoszeń
-- [ ] Akceptowanie zgłoszeń
-- [ ] Generowanie i pokazywanie trasy do zgłoszenia
+- [x] Zapisywanie zgłoszeń
+- [x] Pokazywanie zgłoszeń
+  - [x] Broadcast zgłoszenia
+  - [x] aktualizacja zgłoszenia na mapie (broadcast)
+  - [x] Pokazywanie i aktualizowanie wszystkich zgłoszeń
+- [x] Akceptowanie zgłoszeń
+- [x] Finalizowanie zgłoszeń
+- [x] Ratownik nie moze przyjac kolejnego zgloszenia jezeli jest zajety
+- [x] Zduplikowana lokalizacja ratownika (rozroznienie siebie od innych ratownikow)
+- [x] Generowanie i pokazywanie trasy do zgłoszenia
+- [x] Pokazywanie izochron
+- [x] Pokazywanie zgloszen w izochronie
+- [ ] Dynamiczne generowanie trasy po zmianie położenia ratownika
+- [ ] Pokazywanie przewidywanego czasu dotarcia do zgłoszenia przez ratownika
+- [ ] Dyspozytor moze bezposrednio dodawac zgloszenia po kliknieciu na mapie
+- [ ] Dyspozytor moze zobaczyc jakie zgloszenie obsluguje ratownik
+- [ ] Dyspozytor moze zobaczyc trase od ratownika do zgloszenia
+- [ ] pokazywanie kto i od kiedy jest online
+- [ ] usuwanie nieaktywnych ratowników / zgloszen z mapy
+  - [ ] celery task do ustawiania ratownikow offline, oraz dezaktywowania zgłoszeń
+- [x] Zmiana User z ForeignKey na onetoonefield
+
+### TODO PRACA INZ
+- [ ] Opracowanie rozdziałów
+  - [ ] Wstęp
+    - [ ] Cel pracy
+    - [ ] Zakres pracy
+  - [ ] Analiza dostępnych rozwiązań
+    - [ ] Zoll RescueNet
+    - [ ] FirstWatch
+    - [ ] PulsePpint
+  - [ ] Projekt systemu
+    - [x] Założenia projektowe
+    - [x] Wymagania funkcjonalne
+    - [ ] Wymagania niefunkcjonalne
+  - [ ] Wykorzystane technologie
+  - [ ] Implementacja
+  - [ ] Testy
+  - [ ] Podsumowanie
 
 
 ### Konkretny plan działania
  - Rejestracja dyspozytorów (DONE), ratowników (DONE), logowanie (DONE), edycja profilu
- - Przyjmowanie zgłoszeń API
- - pokazywanie live ratowników na mapie
- - Pokazywanie zgłoszeń live na mapie
+ - Przyjmowanie zgłoszeń API - model(DONE), API(DONE), zapis modelu (DONE)
+ - pokazywanie live ratowników na mapie (DONE)
+ - Pokazywanie zgłoszeń live na mapie (DONE)
  - Pokazywanie zgłoszeń ratownikom w zasięgu, generowanie trasy
  - Rozdysponowanie zgłoszeń między ratownikami, jeżeli nikt nie zaakceptował - wówczas wybór ratownika z listy lub z mapy
  - Uprawnienia dyspozytora

@@ -1,7 +1,26 @@
 from django import forms
-from django.contrib.auth.forms import UserCreationForm
+from django.contrib.auth.forms import UserCreationForm, AuthenticationForm
 from django.contrib.auth.models import Group
 from django.utils.translation import gettext_lazy as _
+
+from base_app.models import Dispositor, Paramedic, ParamedicSettings
+
+
+class CustomAuthenticationForm(AuthenticationForm):
+    error_messages = {
+        "invalid_login": _(
+            "Proszę wprowadzić poprawną nazwę użytkownika oraz hasło. Zauważ, że oba pola zwracają uwagę"
+            " na wielkość liter. "
+        ),
+        "inactive": _("To konto jest nieaktywne"),
+    }
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        self.fields['password'].label = 'Hasło'
+        self.fields['username'].label = 'Nazwa użytkownika'
+    pass
 
 
 class DispositorForm(UserCreationForm):
@@ -11,6 +30,7 @@ class DispositorForm(UserCreationForm):
         'password_mismatch': _('Wprowadzone hasła nie są takie same.')
     }
     group_name = 'dispositors'
+    DataClass = Dispositor
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -32,15 +52,31 @@ class DispositorForm(UserCreationForm):
     def add_user_to_group(self, user):
         user.groups.add(Group.objects.get_or_create(name=self.group_name)[0])
 
+    def create_user_data_instance(self, user):
+        data_instance = self.DataClass.get_by_user(user)
+        return data_instance
+
     def save(self, **kwargs):
         user = super().save()
         self.add_user_to_group(user)
+        self.create_user_data_instance(user)
         return user
 
 
 class ParamedicForm(DispositorForm):
     group_name = 'paramedics'
+    DataClass = Paramedic
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.fields['username'].label = _('Nazwa użytkownika - Ratownika')
+
+
+class ParamedicSettingsForm(forms.ModelForm):
+    class Meta:
+        model = ParamedicSettings
+        fields = ('routing_profile', 'isochrone_range')
+        labels = {
+            'routing_profile': 'Rodzaj lokomocji',
+            'isochrone_range': 'Zasięg izochrony (wyrażany w sekundach)'
+        }

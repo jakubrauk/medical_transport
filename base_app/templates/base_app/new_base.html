@@ -1,106 +1,105 @@
+{% extends 'base_app/base.html' %}
 {% load static %}
-<!doctype html>
-<html lang="pl" data-bs-theme="light">
-<head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Medical Transport System</title>
-    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
-    {% block head_before %}
-    {% endblock head_before %}
-    <link rel="stylesheet" href="{% static 'css/sidebar.css' %}">
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css"
-          rel="stylesheet"
-          integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN"
-          crossorigin="anonymous">
-    {% block head %}
-    {% endblock head %}
-    {% block head_after %}
-    {% endblock head_after %}
-</head>
-<body>
-<main>
-    <div class="d-flex flex-column flex-shrink-0 bg-light" style="width: 4.5rem; height: 100%;">
-{#        <a href="/" class="d-block p-3 link-dark text-decoration-none" title="" data-bs-toggle="tooltip"#}
-{#           data-bs-placement="right" data-bs-original-title="Icon-only">#}
-{#            <img src="{% static 'bootstrap-icons-1.11.0/bootstrap.svg' %}" width="40" height="32" alt="">#}
-{#        </a>#}
-        <ul class="nav nav-pills nav-flush flex-column mb-auto text-center">
-            <li class="nav-item">
-                <a href="/" class="nav-link {% if request.path == '/' %}active {% endif %}py-3 border-bottom" aria-current="page" title=""
-                   data-bs-toggle="tooltip" data-bs-placement="right" data-bs-original-title="Home">
-                    <img src="{% static 'bootstrap-icons-1.11.0/house.svg' %}" width="40" height="32" alt="">
-                </a>
-            </li>
-            <li>
-                <a href="#" class="nav-link py-3 border-bottom" title="" data-bs-toggle="tooltip"
-                   data-bs-placement="right" data-bs-original-title="Dashboard">
-                    <img src="{% static 'bootstrap-icons-1.11.0/speedometer2.svg' %}" width="40" height="32" alt="">
-                </a>
-            </li>
-            <li>
-                <a href="#" class="nav-link py-3 border-bottom" title="" data-bs-toggle="tooltip"
-                   data-bs-placement="right" data-bs-original-title="Orders">
-                    <img src="{% static 'bootstrap-icons-1.11.0/table.svg' %}" width="40" height="32" alt="">
-                </a>
-            </li>
-            <li>
-                <a href="#" class="nav-link py-3 border-bottom" title="" data-bs-toggle="tooltip"
-                   data-bs-placement="right" data-bs-original-title="Products">
-                    <img src="{% static 'bootstrap-icons-1.11.0/grid.svg' %}" width="40" height="32" alt="">
-                </a>
-            </li>
-            <li>
-                <a href="#" class="nav-link py-3 border-bottom" title="" data-bs-toggle="tooltip"
-                   data-bs-placement="right" data-bs-original-title="Customers">
-                    <img src="{% static 'bootstrap-icons-1.11.0/people.svg' %}" width="40" height="32" alt="">
-                </a>
-            </li>
-            {% if user.is_superuser %}
-            <li>
-                {% url 'base_app:create_dispositor' as create_disp_url %}
-                <a href="{{ create_disp_url }}" class="{% if request.path == create_disp_url %}active {% else %}{% endif %}nav-link py-3 border-bottom" title="" data-bs-toggle="tooltip"
-                   data-bs-placement="right" data-bs-original-title="CreateDispositor">
-                    <img src="{% static 'bootstrap-icons-1.11.0/person-add.svg' %}" width="40" height="32" alt="">
-                </a>
-            </li>
-            {% endif %}
-            {% if user.is_superuser or 'dispositors' in user_groups_names %}
-                <li>
-                    {% url 'base_app:create_paramedic' as create_medic_url %}
-                    <a href="{{ create_medic_url }}"
-                       class="{% if request.path == create_medic_url %}active {% else %}{% endif %}nav-link py-3 border-bottom"
-                       title="" data-bs-toggle="tooltip"
-                       data-bs-placement="right" data-bs-original-title="CreateDispositor">
-                        <img src="{% static 'bootstrap-icons-1.11.0/person-add.svg' %}" width="40" height="32" alt="">
+{% block base_head %}
+    <style>
+        .collapsing {
+            transition: none !important;
+        }
+
+        #map_overlay {
+            top: 0;
+            opacity: 70%;
+            position: absolute;
+            bottom: 0;
+            height: 100%;
+            background-color: rgb(128, 128, 128);
+            width: 200px;
+            z-index: 314159;
+        }
+    </style>
+{% endblock base_head %}
+
+{% block body %}
+    <main>
+        <div class="d-flex flex-column flex-shrink-0 bg-light" style="width: 4.5rem; height: 100%;">
+            <ul class="nav nav-pills nav-flush flex-column mb-auto text-center">
+                <li class="nav-item">
+                    <a href="/" class="nav-link {% if request.path == '/' %}active {% endif %}py-3 border-bottom"
+                       aria-current="page" title=""
+                       data-bs-toggle="tooltip" data-bs-placement="right" data-bs-original-title="Home">
+                        <img src="{% static 'bootstrap-icons-1.11.0/house.svg' %}" width="40" height="32" alt="">
                     </a>
                 </li>
-            {% endif %}
-        </ul>
-        <div class="dropdown border-top">
-            <a href="#"
-               class="d-flex align-items-center justify-content-center p-3 link-dark text-decoration-none dropdown-toggle"
-               id="dropdownUser3" data-bs-toggle="dropdown" aria-expanded="false">
-                <img src="https://github.com/mdo.png" alt="mdo" width="24" height="24" class="rounded-circle">
-            </a>
-            <ul class="dropdown-menu text-small shadow" aria-labelledby="dropdownUser3" style="">
-                <li><a class="dropdown-item" href="#">New project...</a></li>
-                <li><a class="dropdown-item" href="#">Settings</a></li>
-                <li><a class="dropdown-item" href="#">Profile</a></li>
                 <li>
-                    <hr class="dropdown-divider">
+                    <a id="people_button" href="#" class="nav-link py-3 border-bottom" type="button"
+                       data-bs-toggle="collapse" data-bs-target="#map_overlay" title="">
+                        <img src="{% static 'bootstrap-icons-1.11.0/people.svg' %}" width="40" height="32" alt="">
+                    </a>
                 </li>
-                <li><a class="dropdown-item" href="{% url 'logout' %}">Wyloguj się</a></li>
+                {% if user.is_superuser %}
+                    <li>
+                        {% url 'base_app:create_dispositor' as create_disp_url %}
+                        <a href="{{ create_disp_url }}"
+                           class="{% if request.path == create_disp_url %}active {% else %}{% endif %}nav-link py-3 border-bottom"
+                           title="" data-bs-toggle="tooltip"
+                           data-bs-placement="right" data-bs-original-title="CreateDispositor">
+                            <img src="{% static 'bootstrap-icons-1.11.0/person-add.svg' %}" width="40" height="32"
+                                 alt="">
+                        </a>
+                    </li>
+                {% endif %}
+                {% if user.is_superuser or 'dispositors' in user_groups_names %}
+                    <li>
+                        {% url 'base_app:create_paramedic' as create_medic_url %}
+                        <a href="{{ create_medic_url }}"
+                           class="{% if request.path == create_medic_url %}active {% else %}{% endif %}nav-link py-3 border-bottom"
+                           title="" data-bs-toggle="tooltip"
+                           data-bs-placement="right" data-bs-original-title="CreateParamedic">
+                            <img src="{% static 'bootstrap-icons-1.11.0/person-add.svg' %}" width="40" height="32"
+                                 alt="">
+                        </a>
+                    </li>
+                {% endif %}
+                {% if user.paramedic %}
+                    <li>
+                        {% url 'base_app:paramedic_settings' as paramedic_settings %}
+                        <a href="{{ paramedic_settings }}"
+                           class="{% if request.path == paramedic_settings %}active {% endif %}nav-link py-3 border-bottom"
+                           title="" data-bs-toggle="tooltip"
+                           data-bs-placement="right" data-bs-original-title="ParamedicSettings">
+                            <img src="{% static 'bootstrap-icons-1.11.0/person-fill-gear.svg' %}" alt="" width="40"
+                                 height="32">
+                        </a>
+                    </li>
+                {% endif %}
             </ul>
+            <div class="dropdown border-top">
+                <a href="#"
+                   class="d-flex align-items-center justify-content-center p-3 link-dark text-decoration-none dropdown-toggle"
+                   id="dropdownUser3" data-bs-toggle="dropdown" aria-expanded="false">
+                    <img src="https://github.com/mdo.png" alt="mdo" width="24" height="24" class="rounded-circle">
+                </a>
+                <ul class="dropdown-menu text-small shadow" aria-labelledby="dropdownUser3" style="">
+                    <li><a class="dropdown-item" href="#">New project...</a></li>
+                    <li><a class="dropdown-item" href="#">Settings</a></li>
+                    <li><a class="dropdown-item" href="#">Profile</a></li>
+                    <li>
+                        <hr class="dropdown-divider">
+                    </li>
+                    <li><a class="dropdown-item" href="{% url 'logout' %}">Wyloguj się</a></li>
+                </ul>
+            </div>
         </div>
-    </div>
-    <div class="container-fluid">
-        {% block content %}{% endblock content %}
-    </div>
-</main>
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"
-        integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL"
-        crossorigin="anonymous"></script>
-{% block scripts %}{% endblock scripts %}
-</body>
-</html>
+        <div class="container-fluid">
+            <div id="map_overlay" class="collapse collapse-horizontal"></div>
+            {% block content %}{% endblock content %}
+        </div>
+    </main>
+{% endblock body %}
+{% block base_scripts %}
+    <script type="text/javascript">
+        $('#people_button').click(function () {
+
+        });
+    </script>
+{% endblock base_scripts %}
