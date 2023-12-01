@@ -73,6 +73,7 @@ class Paramedic(models.Model):
         return {
             'id': self.id,
             'user_id': self.user_id,
+            'username': self.user.username,
             'online': self.online,
             'latitude': self.last_latitude,
             'longitude': self.last_longitude,

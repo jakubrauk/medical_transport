@@ -199,11 +199,12 @@ class EmergencyAlert {
 }
 
 class Paramedic {
-    constructor(main_app, id, user_id, latitude, longitude, status, isochrones, accuracy, active_emergency_alert_id) {
+    constructor(main_app, id, user_id, username, latitude, longitude, status, isochrones, accuracy, active_emergency_alert_id) {
         const self = this;
 
         self.main_app = main_app;
         self.id = id;
+        self.username = username;
         self.user_id = user_id;
         self.latitude = latitude;
         self.longitude = longitude;
@@ -217,12 +218,6 @@ class Paramedic {
         self.popup = null;
         self.popup_initialized = false;
         self.isochrone_visible = false;
-
-        if (self.isochrones) {
-            // TODO show on init when main_app.user_paramedic === self
-            self.isochrones_polygon = L.polygon(self.isochrones, {color: 'blue'}).addTo(self.main_app.map);
-            self.isochrone_visible = true;
-        }
 
         self.show_isochrone_button = $('<button>').addClass('btn btn-sm btn-primary').text(self.get_isochrone_button_text());
         self.fly_to_emergency_allert_button = $('<button>').addClass('btn btn-sm btn-success').text('Pokaż zgłoszenie');
@@ -243,7 +238,7 @@ class Paramedic {
 
         if (!self.popup_initialized) {
             self.show_isochrone_button.click(function (e) {
-                self.show_isochrone_button_action();
+                self.toggle_isochrone();
             });
             self.fly_to_emergency_allert_button.click(function (e) {
                 self.fly_to_emergency_alert_button_action();
@@ -253,9 +248,16 @@ class Paramedic {
         self.popup_initialized = true;
 
         let popup = $(`#popup_paramedic_${self.id}`);
-        popup
-            .append($('<p>').text('RATOWNIK!'))
-            .append(self.show_isochrone_button)
+        popup.append($('<p>').text(`Ratownik: ${self.username}`))
+
+        if (self.accuracy) {
+            popup
+                .append(
+                    $('<p>').text(`Dokładność GPS: do ${parseFloat(self.accuracy).toFixed(2)} m`)
+                );
+        }
+         popup
+             .append(self.show_isochrone_button)
             .append(self.fly_to_emergency_allert_button);
     }
 
@@ -264,7 +266,7 @@ class Paramedic {
         return ((self.isochrone_visible) ? 'Ukryj izochrone' : 'Pokaż izochrone');
     }
 
-    show_isochrone_button_action() {
+    toggle_isochrone() {
         const self = this;
 
         if (self.isochrone_visible) {
@@ -306,12 +308,10 @@ class Paramedic {
             self.fly_to_emergency_allert_button.addClass('d-none');
         }
 
-        if (self.isochrones) {
-            if (!self.isochrones_polygon) {
-                self.isochrones_polygon = L.polygon(self.isochrones, {color: 'blue'}).addTo(self.main_app.map);
-            }
+        if (self.isochrone_visible) {
             self.isochrones_polygon.setLatLngs(self.isochrones);
         }
+
         self.marker.setLatLng(new L.LatLng(self.latitude, self.longitude));
         self.marker.setIcon(self.get_marker_icon());
     }
@@ -609,6 +609,7 @@ class MainApp {
                 self,
                 data.id,
                 data.user_id,
+                data.username,
                 data.latitude,
                 data.longitude,
                 data.status,
@@ -621,6 +622,7 @@ class MainApp {
 
         if (!self.user_paramedic && self.user_id === paramedic.user_id) {
             self.user_paramedic = paramedic;
+            self.user_paramedic.toggle_isochrone();
         }
 
         // if (self.user_paramedic) {
