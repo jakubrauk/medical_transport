@@ -108,10 +108,13 @@ Aplikacja webowa do przyjmowania oraz rozdysponowania zgłoszeń alarmowych (kon
     - [ ] Zoll RescueNet
     - [ ] FirstWatch
     - [ ] PulsePpint
-  - [ ] Projekt systemu
+  - [x] Projekt systemu
     - [x] Założenia projektowe
     - [x] Wymagania funkcjonalne
-    - [ ] Wymagania niefunkcjonalne
+    - [x] Wymagania niefunkcjonalne
+    - [x] Diagram przypadków użycia
+    - [x] Opis przypadków użycia
+    - [x] Diagram relacji między encjami
   - [ ] Wykorzystane technologie
   - [ ] Implementacja
   - [ ] Testy

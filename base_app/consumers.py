@@ -71,7 +71,7 @@ class BaseAppConsumer(WebsocketConsumer):
         emergency_alert = EmergencyAlert.objects.get(id=_data.get('emergency_alert_id'))
         paramedic = Paramedic.objects.get(id=_data.get('paramedic_id'))
         emergency_alert.accept(paramedic)
-        self.send(json.dumps({'type': 'emergency_alert_directions', 'data': emergency_alert.get_directions()}))
+        # self.send(json.dumps({'type': 'emergency_alert_directions', 'data': emergency_alert.get_directions()}))
 
     def emergency_alert_finish(self, _data):
         emergency_alert = EmergencyAlert.objects.get(id=_data.get('emergency_alert_id'))

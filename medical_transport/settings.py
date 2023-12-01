@@ -43,7 +43,13 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'base_app',
+    'django_extensions'
 ]
+
+GRAPH_MODELS = {
+    'all_applications': True,
+    'graph_models': True,
+}
 
 CRISPY_ALLOWED_TEMPLATE_PACKS = "bootstrap5"
 

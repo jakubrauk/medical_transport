@@ -13,6 +13,12 @@ from base_app.ors_client import get_decoded_directions, get_reversed_polyline_di
     decode_geometry, get_isochrones
 
 
+class Settings(models.Model):
+    default_latitude = models.CharField(max_length=254)
+    default_longitude = models.CharField(max_length=254)
+    default_zoom = models.IntegerField(default=12)
+
+
 class Paramedic(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)  # django profile model
     online = models.BooleanField(default=False)

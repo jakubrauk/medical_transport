@@ -14,10 +14,13 @@ class EmergencyAlert {
         self.priority = priority;
         self.paramedic_id = paramedic_id;
         self.directions = directions;
+        self.directions_visible = false;
+        self.directions_polyline = null;
         self.duration = duration;
 
         self.accept_button = $('<button>').addClass('btn btn-success btn-sm').text('Przyjmij zgłoszenie');
         self.finish_button = $('<button>').addClass('btn btn-danger btn-sm').text('Zakończ zgłoszenie');
+        self.toggle_directions_button = $('<button>').addClass('btn btn-primary').text('Pokaż trasę');
 
         self.popup_initialized = false;
 
@@ -27,7 +30,12 @@ class EmergencyAlert {
         });
 
         self.alert_in_isochrones();
-        self.show_directions();
+
+        if (self.main_app.user_paramedic) {
+            if (self.main_app.user_paramedic.id === self.paramedic_id && self.directions && self.status === 'In process') {
+                self.show_directions();
+            }
+        }
     }
 
     remove_marker() {
@@ -35,19 +43,35 @@ class EmergencyAlert {
         self.main_app.map.removeLayer(self.marker);
     }
 
+    remove_directions() {
+        const self = this;
+        if (self.directions_visible) {
+            self.main_app.map.removeLayer(self.directions_polyline);
+        }
+    }
+
     show_directions() {
         const self = this;
-        console.log('1. EMERGENCY SHOW DIRECTIONS CALLED');
-        console.log(self);
-        if (self.directions) {
-            console.log('2. EMERGENCY SHOW DIRECTIONS CALLED');
-            if (self.main_app.user_paramedic) {
-                console.log('3. EMERGENCY SHOW DIRECTIONS CALLED');
-                if (self.main_app.user_paramedic.id === self.paramedic_id) {
-                    console.log('4. EMERGENCY SHOW DIRECTIONS CALLED');
-                    self.main_app.show_directions(self.directions);
-                }
-            }
+        if (self.directions && !self.directions_visible) {
+            self.directions_polyline = L.polyline(self.directions, {color: 'red'}).addTo(self.main_app.map);
+            self.directions_visible = true;
+        }
+    }
+
+    toggle_directions() {
+        const self = this;
+
+        if (self.directions_visible) {
+            self.main_app.map.removeLayer(self.directions_polyline);
+            self.directions_visible = false;
+        } else {
+            self.show_directions();
+        }
+
+        if (self.directions_visible) {
+            self.toggle_directions_button.text('Ukryj trasę');
+        } else {
+            self.toggle_directions_button.text('Pokaż trasę');
         }
     }
 
@@ -65,7 +89,19 @@ class EmergencyAlert {
 
         self.marker.setLatLng(new L.LatLng(self.start_latitude, self.start_longitude));
         self.marker.setIcon(self.get_marker_icon());
-        self.show_directions();
+
+        if (self.main_app.user_paramedic) {
+            if (self.main_app.user_paramedic.id === self.paramedic_id && self.directions && self.status === 'In process') {
+                self.show_directions();
+            }
+        }
+
+        if (self.status === 'Done') {
+            self.remove_marker();
+            if (self.directions_visible) {
+                self.remove_directions();
+            }
+        }
     }
 
     alert_in_isochrones() {
@@ -90,6 +126,16 @@ class EmergencyAlert {
         });
     }
 
+    get_status_label() {
+        const self = this;
+        switch (self.status) {
+            case 'Pending':
+                return 'Oczekujące';
+            case 'In process':
+                return 'W trakcie';
+        }
+    }
+
     set_popup_content() {
         const self = this;
 
@@ -101,16 +147,26 @@ class EmergencyAlert {
             self.finish_button.click(function (e) {
                 self.finish_button_action();
                 self.popup.closePopup();
+            });
+            self.toggle_directions_button.click(function (e) {
+                self.toggle_directions();
             })
+            self.popup_initialized = true;
         }
 
         let popup = $(`#popup_${self.id}`);
 
-        self.popup_initialized = true;
+        popup
+            .append($('<p>')
+                .append($('<b>').text(self.additional_info)))
+            .append($('<p>')
+                .append($('<b>').text(`Status: ${self.get_status_label()}`)));
 
-         popup
-             .append($('<p>')
-                 .append($('<b>').text(self.additional_info)));
+        if (self.status === 'In process' && self.duration) {
+            popup
+                .append($('<p>')
+                    .append($('<b>').text(`Na miejscu za: ${(parseInt(self.duration)/60).toFixed(0)} min`)));
+        }
 
         if (self.main_app.user_paramedic) {
             if (self.main_app.user_paramedic.status === 'FREE') {
@@ -122,8 +178,10 @@ class EmergencyAlert {
                     popup.append($('<p>').text("Dokończ poprzednie zgłoszenie zanim rozpoczniesz kolejne!"));
                 }
             }
-        } else {
-            popup.append($('<p>').text("Nie jesteś ratownikiem chujku, nie mozesz tego przyjac"));
+        }
+
+        if (self.main_app.user_groups.length === 0 || 'dispositors' in self.main_app.user_groups) {
+            popup.append(self.toggle_directions_button);
         }
     }
 
@@ -285,7 +343,7 @@ class MainApp {
         self.user_groups = js_lookup['user_groups'];
         self.user_id = js_lookup['user_id'];
         self.user_paramedic = null;  // User using app instance - paramedic
-        self.directions = null;
+        // self.directions = null;
         self.test_button_id = test_button_id;
         self.alert_form_modal = $(`#${alert_form_modal_id}`);
         self.save_alert_button = self.alert_form_modal.find('#save_alert_button');
@@ -534,10 +592,7 @@ class MainApp {
         }
         em_alert.update_data(data);
         if (em_alert.status === 'Done') {
-            // remove marker, remove alert from list
-            em_alert.remove_marker();
             self.emergency_alerts = self.emergency_alerts.filter(item => item !== em_alert);
-            console.log(self);
         }
     }
 
@@ -568,19 +623,19 @@ class MainApp {
             self.user_paramedic = paramedic;
         }
 
-        if (self.user_paramedic) {
-            if (self.user_paramedic.status === 'FREE' && self.directions) {
-                self.map.removeLayer(self.directions);
-            }
-        }
+        // if (self.user_paramedic) {
+        //     if (self.user_paramedic.status === 'FREE' && self.directions) {
+        //         self.map.removeLayer(self.directions);
+        //     }
+        // }
     }
 
-    show_directions(coordinates) {
-        const self = this;
-        if (!self.directions) {
-            self.directions = L.polyline(coordinates, {color: 'red'}).addTo(self.map);
-        } else {
-            self.directions.setLatLngs(coordinates);
-        }
-    }
+    // show_directions(coordinates) {
+    //     const self = this;
+    //     if (!self.directions) {
+    //         self.directions = L.polyline(coordinates, {color: 'red'}).addTo(self.map);
+    //     } else {
+    //         self.directions.setLatLngs(coordinates);
+    //     }
+    // }
 }
