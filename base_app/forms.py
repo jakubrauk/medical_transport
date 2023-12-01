@@ -3,7 +3,7 @@ from django.contrib.auth.forms import UserCreationForm, AuthenticationForm
 from django.contrib.auth.models import Group
 from django.utils.translation import gettext_lazy as _
 
-from base_app.models import Dispositor, Paramedic, ParamedicSettings
+from base_app.models import Dispositor, Paramedic, ParamedicSettings, Settings
 
 
 class CustomAuthenticationForm(AuthenticationForm):
@@ -79,4 +79,15 @@ class ParamedicSettingsForm(forms.ModelForm):
         labels = {
             'routing_profile': 'Rodzaj lokomocji',
             'isochrone_range': 'Zasięg izochrony (wyrażany w sekundach)'
+        }
+
+
+class SettingsForm(forms.ModelForm):
+    class Meta:
+        model = Settings
+        fields = '__all__'
+        labels = {
+            'default_latitude': 'Domyślna szerokość geograficzna',
+            'default_longitude': 'Domyślna długość geograficzna',
+            'default_zoom': 'Domyślne przybliżenie mapy'
         }

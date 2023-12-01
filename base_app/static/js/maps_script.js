@@ -340,8 +340,9 @@ class MainApp {
     constructor(map_id, js_lookup, test_button_id, alert_form_modal_id) {
         const self = this;
 
-        self.user_groups = js_lookup['user_groups'];
-        self.user_id = js_lookup['user_id'];
+        self.js_lookup = js_lookup;
+        self.user_groups = self.js_lookup['user_groups'];
+        self.user_id = self.js_lookup['user_id'];
         self.user_paramedic = null;  // User using app instance - paramedic
         // self.directions = null;
         self.test_button_id = test_button_id;
@@ -422,7 +423,12 @@ class MainApp {
     }
 
     initialize_map(map_id) {
-        let map = L.map(map_id).setView([51.1104, 17.0317], 12);
+        const self = this;
+
+        let map = L.map(map_id).setView(
+            [self.js_lookup['settings']['default_latitude'], self.js_lookup['settings']['default_longitude']],
+            self.js_lookup['settings']['default_zoom']
+        );
 
         L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
             maxZoom: 19,

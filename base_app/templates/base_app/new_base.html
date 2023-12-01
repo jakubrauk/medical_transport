@@ -30,7 +30,7 @@
                         <img src="{% static 'bootstrap-icons-1.11.0/house.svg' %}" width="40" height="32" alt="">
                     </a>
                 </li>
-                <li>
+                <li class="d-none">
                     <a id="people_button" href="#" class="nav-link py-3 border-bottom" type="button"
                        data-bs-toggle="collapse" data-bs-target="#map_overlay" title="">
                         <img src="{% static 'bootstrap-icons-1.11.0/people.svg' %}" width="40" height="32" alt="">
@@ -56,6 +56,18 @@
                            title="" data-bs-toggle="tooltip"
                            data-bs-placement="right" data-bs-original-title="CreateParamedic">
                             <img src="{% static 'bootstrap-icons-1.11.0/person-add.svg' %}" width="40" height="32"
+                                 alt="">
+                        </a>
+                    </li>
+                {% endif %}
+                {% if user.is_superuser %}
+                    <li>
+                        {% url 'base_app:settings' as settings_url %}
+                        <a href="{{ settings_url }}"
+                           class="{% if request.path == settings_url %}active {% else %}{% endif %}nav-link py-3 border-bottom"
+                           title="" data-bs-toggle="tooltip"
+                           data-bs-placement="right" data-bs-original-title="Settings">
+                            <img src="{% static 'bootstrap-icons-1.11.0/gear.svg' %}" width="40" height="32"
                                  alt="">
                         </a>
                     </li>

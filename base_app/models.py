@@ -14,9 +14,16 @@ from base_app.ors_client import get_decoded_directions, get_reversed_polyline_di
 
 
 class Settings(models.Model):
-    default_latitude = models.CharField(max_length=254)
-    default_longitude = models.CharField(max_length=254)
+    default_latitude = models.CharField(max_length=254, default='51.1104')
+    default_longitude = models.CharField(max_length=254, default='17.0317')
     default_zoom = models.IntegerField(default=12)
+
+    def get_dict(self):
+        return {
+            'default_latitude': self.default_latitude,
+            'default_longitude': self.default_longitude,
+            'default_zoom': self.default_zoom
+        }
 
 
 class Paramedic(models.Model):

@@ -5,8 +5,8 @@ from django.http import JsonResponse
 from django.shortcuts import render, redirect
 from django.views.decorators.csrf import csrf_exempt
 
-from base_app.forms import DispositorForm, ParamedicForm, CustomAuthenticationForm, ParamedicSettingsForm
-from base_app.models import EmergencyAlert, ParamedicSettings
+from base_app.forms import DispositorForm, ParamedicForm, CustomAuthenticationForm, ParamedicSettingsForm, SettingsForm
+from base_app.models import EmergencyAlert, ParamedicSettings, Settings
 
 
 class CustomLoginView(LoginView):
@@ -47,7 +47,7 @@ def create_paramedic(request):
     return render(request, 'base_app/create_paramedic.html', {'form': form})
 
 
-@login_required()
+@login_required
 @user_passes_test(lambda u: hasattr(u, 'paramedic'))
 def paramedic_settings(request):
     form = None
@@ -62,6 +62,22 @@ def paramedic_settings(request):
             return redirect('base_app:index')
 
     return render(request, 'base_app/paramedic_settings.html', {'form': form})
+
+
+@login_required
+@user_passes_test(lambda u: u.is_superuser)
+def settings(request):
+    form = None
+    instance = Settings.objects.get_or_create()[0]
+    if request.method == 'GET':
+        form = SettingsForm(instance=instance)
+
+    elif request.method == 'POST':
+        form = SettingsForm(request.POST, instance=instance)
+        if form.is_valid():
+            form.save()
+            return redirect('base_app:index')
+    return render(request, 'base_app/settings.html', {'form': form})
 
 
 @csrf_exempt
