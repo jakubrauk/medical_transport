@@ -27,7 +27,7 @@ class Settings(models.Model):
 
 
 class Paramedic(models.Model):
-    user = models.OneToOneField(User, on_delete=models.CASCADE)  # django profile model
+    user = models.OneToOneField(User, on_delete=models.CASCADE)
     online = models.BooleanField(default=False)
     last_latitude = models.CharField(max_length=254, null=True, blank=True)
     last_longitude = models.CharField(max_length=254, null=True, blank=True)

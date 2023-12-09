@@ -100,14 +100,14 @@ Aplikacja webowa do przyjmowania oraz rozdysponowania zgłoszeń alarmowych (kon
 - [x] Zmiana User z ForeignKey na onetoonefield
 
 ### TODO PRACA INZ
-- [ ] Opracowanie rozdziałów
-  - [ ] Wstęp
-    - [ ] Cel pracy
-    - [ ] Zakres pracy
-  - [ ] Analiza dostępnych rozwiązań
-    - [ ] Zoll RescueNet
-    - [ ] FirstWatch
-    - [ ] PulsePpint
+- [x] Opracowanie rozdziałów
+  - [x] Wstęp
+    - [x] Cel pracy
+    - [x] Zakres pracy
+  - [x] Analiza dostępnych rozwiązań
+    - [x] Zoll RescueNet
+    - [x] FirstWatch
+    - [x] PulsePpint
   - [x] Projekt systemu
     - [x] Założenia projektowe
     - [x] Wymagania funkcjonalne
@@ -115,10 +115,11 @@ Aplikacja webowa do przyjmowania oraz rozdysponowania zgłoszeń alarmowych (kon
     - [x] Diagram przypadków użycia
     - [x] Opis przypadków użycia
     - [x] Diagram relacji między encjami
-  - [ ] Wykorzystane technologie
-  - [ ] Implementacja
-  - [ ] Testy
-  - [ ] Podsumowanie
+  - [x] Wykorzystane technologie
+  - [x] Implementacja
+    - [x] opis tworzenia i wyswietlania formularzy
+  - [x] Testy
+  - [x] Podsumowanie
 
 
 ### Konkretny plan działania

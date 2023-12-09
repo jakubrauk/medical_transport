@@ -90,6 +90,12 @@ class EmergencyAlert {
         self.marker.setLatLng(new L.LatLng(self.start_latitude, self.start_longitude));
         self.marker.setIcon(self.get_marker_icon());
 
+        if (self.directions) {
+            if (self.directions_polyline) {
+                self.directions_polyline.setLatLngs(self.directions);
+            }
+        }
+
         if (self.main_app.user_paramedic) {
             if (self.main_app.user_paramedic.id === self.paramedic_id && self.directions && self.status === 'In process') {
                 self.show_directions();
@@ -136,6 +142,20 @@ class EmergencyAlert {
         }
     }
 
+    get_priority_label() {
+        const self = this;
+        switch (self.priority) {
+            case 'Normal':
+                return 'Normalny';
+            case 'Medium':
+                return 'Średni';
+            case 'High':
+                return 'Wysoki';
+            default:
+                return 'Nieznany';
+        }
+    }
+
     set_popup_content() {
         const self = this;
 
@@ -160,7 +180,9 @@ class EmergencyAlert {
             .append($('<p>')
                 .append($('<b>').text(self.additional_info)))
             .append($('<p>')
-                .append($('<b>').text(`Status: ${self.get_status_label()}`)));
+                .append($('<b>').text(`Status: ${self.get_status_label()}`)))
+            .append($('<p>')
+                .append($('<b>').text(`Priorytet: ${self.get_priority_label()}`)));
 
         if (self.status === 'In process' && self.duration) {
             popup
@@ -170,7 +192,9 @@ class EmergencyAlert {
 
         if (self.main_app.user_paramedic) {
             if (self.main_app.user_paramedic.status === 'FREE') {
-                popup.append(self.accept_button);
+                if (self.status === 'Pending') {
+                    popup.append(self.accept_button);
+                }
             } else {
                 if (self.main_app.user_paramedic.id === self.paramedic_id) {
                     popup.append(self.finish_button);
@@ -226,11 +250,16 @@ class Paramedic {
         }
 
         if (self.latitude && self.longitude) {
-            self.marker = L.marker([self.latitude, self.longitude], {icon: self.get_marker_icon()}).addTo(self.main_app.map);
-            self.popup = self.marker.bindPopup(`<div id="popup_paramedic_${self.id}" style="min-width: 80px;"></div>`).on('popupopen', function (e) {
-                self.set_popup_content();
-            });
+            self.initialize_marker();
         }
+    }
+
+    initialize_marker() {
+        const self = this;
+        self.marker = L.marker([self.latitude, self.longitude], {icon: self.get_marker_icon()}).addTo(self.main_app.map);
+        self.popup = self.marker.bindPopup(`<div id="popup_paramedic_${self.id}" style="min-width: 80px;"></div>`).on('popupopen', function (e) {
+            self.set_popup_content();
+        });
     }
 
     set_popup_content() {
@@ -312,8 +341,14 @@ class Paramedic {
             self.isochrones_polygon.setLatLngs(self.isochrones);
         }
 
-        self.marker.setLatLng(new L.LatLng(self.latitude, self.longitude));
-        self.marker.setIcon(self.get_marker_icon());
+        if (self.marker) {
+            self.marker.setLatLng(new L.LatLng(self.latitude, self.longitude));
+            self.marker.setIcon(self.get_marker_icon());
+        } else {
+            if (self.latitude && self.longitude) {
+                self.initialize_marker();
+            }
+        }
     }
 
     get_marker_icon() {
@@ -343,8 +378,7 @@ class MainApp {
         self.js_lookup = js_lookup;
         self.user_groups = self.js_lookup['user_groups'];
         self.user_id = self.js_lookup['user_id'];
-        self.user_paramedic = null;  // User using app instance - paramedic
-        // self.directions = null;
+        self.user_paramedic = null;
         self.test_button_id = test_button_id;
         self.alert_form_modal = $(`#${alert_form_modal_id}`);
         self.save_alert_button = self.alert_form_modal.find('#save_alert_button');

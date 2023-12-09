@@ -82,19 +82,8 @@ def settings(request):
 
 @csrf_exempt
 def create_emergency_alert_api(request):
-    # later authorization with token
-    # args:
-    # startPositionLatitude
-    # startPositionLongitude
-    # endPositionLatitude (optional)
-    # endPositionLongitude (optional)
-    # priority - [1, 2, 3]
-    # additionalInfo - Text
-    print('EMERGENCY ALERT API')
-
     if request.method == 'POST':
         if EmergencyAlert.api_data_valid(request.POST):
-            # save Emergency alert
             emergency_alert = EmergencyAlert.create_from_api(request.POST)
             context = {
                 'valid': True,

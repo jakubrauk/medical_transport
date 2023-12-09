@@ -6,7 +6,6 @@ from base_app.models import Paramedic, EmergencyAlert, Dispositor
 
 
 class BaseAppConsumer(WebsocketConsumer):
-
     def connect(self):
         async_to_sync(self.channel_layer.group_add)('base_app', self.channel_name)
         if user := self.scope['user']:

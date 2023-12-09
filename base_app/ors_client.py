@@ -11,7 +11,6 @@ client = openrouteservice.Client(base_url='http://localhost:8080/ors')
 
 def get_directions(start_coords, end_coords, _profile='driving-car'):
     dirs = directions(client, (start_coords, end_coords), profile=_profile)
-    # pprint(dirs)
     return dirs
 
 
@@ -29,6 +28,5 @@ def get_reversed_polyline_directions(coords):
 
 
 def get_isochrones(coords, _profile='driving-car', _range=60):
-    print(coords)
     return isochrones(client, coords, profile=_profile, range=[_range])
 
